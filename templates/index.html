@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InnerQuest: Город Сфер</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__mark">
+          <span class="pulse"></span>
+        </div>
+        <div>
+          <div class="brand__title">InnerQuest</div>
+          <div class="brand__subtitle">Город Сфер</div>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <div class="status-pill" id="statusBadge">Готов к запуску</div>
+        <button class="button button--ghost" id="saveButton">Сохранить сессию</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Narrative RPG для фокусировки и действий</p>
+        <h1>Свежий интерфейс для диалогов с Айрой и прогресса города</h1>
+        <p class="lede">Выбирайте квартал, запускайте сессию, общайтесь с наставником и фиксируйте микрошаги без визуального шума.</p>
+        <div class="hero__meta" id="heroMeta">
+          <div class="meta-item">
+            <div class="meta-item__label">Очки устойчивости</div>
+            <div class="meta-item__value" id="stabilityValue">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-item__label">Effort</div>
+            <div class="meta-item__value" id="effortValue">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-item__label">Акты завершены</div>
+            <div class="meta-item__value" id="actsValue">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero__card">
+        <div class="hero__title">Живые кварталы</div>
+        <p class="hero__text">Каждый район отражает ваш прогресс: яркость огней, плотность тумана и уровень раскрытия.</p>
+        <div class="sparkline" id="sparkline"></div>
+      </div>
+    </section>
+
+    <main class="grid">
+      <section class="panel span-2">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Карта города</p>
+            <h2>Кварталы и состояние</h2>
+          </div>
+          <div class="chip" id="lastSession">Последняя сессия: —</div>
+        </div>
+        <div class="district-grid" id="districtGrid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Сессия</p>
+            <h2>Настройка и запуск</h2>
+          </div>
+          <div class="chip chip--accent" id="sessionState">Нет активной сессии</div>
+        </div>
+        <form class="form" id="sessionForm">
+          <label class="form__field">
+            <span>Квартал</span>
+            <select name="district" id="districtSelect" required></select>
+          </label>
+          <label class="form__field">
+            <span>Эмоция</span>
+            <input type="text" name="emotion" id="emotionInput" placeholder="Например: тревога, ясность, выгорание" required>
+          </label>
+          <label class="form__field">
+            <div class="form__label-row">
+              <span>Интенсивность</span>
+              <span class="muted"><span id="intensityValue">5</span>/10</span>
+            </div>
+            <input type="range" min="1" max="10" value="5" id="intensityInput">
+          </label>
+          <button class="button button--primary" type="submit">Запустить сессию</button>
+        </form>
+        <div class="session-summary" id="sessionSummary" hidden></div>
+      </section>
+
+      <section class="panel span-2">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Диалог</p>
+            <h2>Айра помогает сфокусироваться</h2>
+          </div>
+          <div class="chip" id="crisisFlag">Без кризиса</div>
+        </div>
+        <div class="chat" id="chat">
+          <div class="chat__log" id="chatLog"></div>
+          <form class="chat__composer" id="chatForm">
+            <input type="text" id="chatInput" placeholder="Спросите Айру о следующем шаге" autocomplete="off">
+            <button class="button button--primary" type="submit">Отправить</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Микрошаги</p>
+            <h2>Закрепляем прогресс</h2>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="progress" id="effortBar">
+            <div class="progress__label">Effort</div>
+            <div class="progress__bar"><span></span></div>
+            <div class="progress__hint" id="effortHint">Готовность к картам</div>
+          </div>
+          <div class="micro-actions">
+            <button class="button" id="logMicrostep">Засчитать микрошаг</button>
+            <button class="button button--ghost" id="completeSession" disabled>Завершить сессию</button>
+          </div>
+          <div class="history" id="history"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Карты</p>
+            <h2>Награды и экипировка</h2>
+          </div>
+          <div class="chip" id="equippedCard">Без карты</div>
+        </div>
+        <div class="cards" id="cards"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
