@@ -4,10 +4,7 @@
 import os
 
 # OpenAI API ключ
-OPENAI_API_KEY = ""
-
-# Флаг использования LLM
-LLM_ENABLED = False
+OPENAI_API_KEY = "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"
 
 # Модель OpenAI для диалогов
 # Рекомендуемые модели OpenRouter (бесплатные):
@@ -41,3 +38,4 @@ DEFAULT_SAVE_FILE = os.path.join(SAVES_DIR, "player.json")
 FLASK_HOST = "127.0.0.1"
 FLASK_PORT = 5001  # Изменено с 5000, т.к. 5000 часто занят AirPlay на macOS
 FLASK_DEBUG = True
+

@@ -40,10 +40,10 @@ class BinaryTreesManager:
         
         # Получаем текущий узел
         if node_id == 'root':
-            current_node = self._with_node_id(tree.get('root'), 'root')
+            current_node = tree.get('root')
         else:
             nodes = tree.get('nodes', {})
-            current_node = self._with_node_id(nodes.get(node_id), node_id)
+            current_node = nodes.get(node_id)
         
         if not current_node:
             return None
@@ -129,10 +129,10 @@ class BinaryTreesManager:
             return None
         
         if node_id == 'root':
-            return self._with_node_id(tree.get('root'), 'root')
+            return tree.get('root')
         
         nodes = tree.get('nodes', {})
-        return self._with_node_id(nodes.get(node_id), node_id)
+        return nodes.get(node_id)
     
     def is_leaf_node(self, node: Dict[str, Any]) -> bool:
         """Проверяет, является ли узел конечным"""
@@ -141,12 +141,4 @@ class BinaryTreesManager:
             node.get('final', False) or
             'next' not in node and 'options' not in node
         )
-    
-    @staticmethod
-    def _with_node_id(node: Optional[Dict[str, Any]], node_id: str) -> Optional[Dict[str, Any]]:
-        """Добавляет node_id в возвращаемый узел, не мутируя исходные данные"""
-        if not node:
-            return None
-        node_copy = dict(node)
-        node_copy.setdefault('node_id', node_id)
-        return node_copy
+
