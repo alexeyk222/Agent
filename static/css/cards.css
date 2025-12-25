@@ -57,6 +57,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    touch-action: manipulation;
 }
 
 .card:hover {
@@ -161,8 +162,10 @@
     bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 4px 12px;
-    font-size: 0.7rem;
+    padding: 6px 14px;
+    min-height: 36px;
+    min-width: 120px;
+    font-size: 0.75rem;
     background: var(--accent-citadel);
     color: white;
     border: none;
@@ -175,6 +178,20 @@
 .card:hover .card-equip-btn,
 .card:hover .card-use-btn {
     opacity: 1;
+}
+
+.card:focus-visible {
+    outline: 2px solid var(--accent-citadel);
+    outline-offset: 4px;
+}
+
+.card:focus-visible .card-equip-btn,
+.card:focus-visible .card-use-btn {
+    opacity: 1;
+}
+
+.card.touch-dragging {
+    cursor: grabbing;
 }
 
 /* Modal для деталей карты */
@@ -333,5 +350,21 @@
         margin-top: 10px;
         width: 250px;
     }
+    
+    .card-equip-btn,
+    .card-use-btn {
+        opacity: 1;
+    }
 }
 
+@media (hover: none) {
+    .card-equip-btn,
+    .card-use-btn {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .card {
+        min-height: 160px;
+    }
+}

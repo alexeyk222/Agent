@@ -5,6 +5,7 @@
 class Minigames {
     constructor() {
         this.sphereDragging = false;
+        this.spherePointerId = null;
         this.breathingCount = 0;
         this.breathingInterval = null;
         this.breathingPhase = 'inhale'; // inhale, hold, exhale
@@ -58,54 +59,81 @@ class Minigames {
     setupDragAndDrop(source, target) {
         if (!source || !target) return;
         
-        source.addEventListener('mousedown', (e) => {
+        const handlePointerDown = (e) => {
+            if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+            
             this.sphereDragging = true;
+            this.spherePointerId = e.pointerId;
             source.style.cursor = 'grabbing';
+            source.classList.add('is-dragging');
+            source.setPointerCapture?.(e.pointerId);
+            this.moveSphereWithPointer(source, target, e);
             e.preventDefault();
-        });
+        };
         
-        document.addEventListener('mousemove', (e) => {
-            if (!this.sphereDragging) return;
-            
-            const rect = source.parentElement.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            source.style.left = x + 'px';
-            source.style.top = y + 'px';
-            source.style.transform = 'translate(-50%, -50%)';
-            
-            // Проверяем попадание в цель
-            const targetRect = target.getBoundingClientRect();
-            const sourceRect = source.getBoundingClientRect();
-            
-            if (this.isOverlapping(sourceRect, targetRect)) {
-                target.classList.add('drag-over');
-            } else {
-                target.classList.remove('drag-over');
-            }
-        });
+        const handlePointerMove = (e) => {
+            if (!this.sphereDragging || e.pointerId !== this.spherePointerId) return;
+            this.moveSphereWithPointer(source, target, e);
+        };
         
-        document.addEventListener('mouseup', () => {
-            if (!this.sphereDragging) return;
+        const handlePointerUp = (e) => {
+            if (!this.sphereDragging || e.pointerId !== this.spherePointerId) return;
             
             this.sphereDragging = false;
+            this.spherePointerId = null;
             source.style.cursor = 'grab';
+            source.classList.remove('is-dragging');
+            source.releasePointerCapture?.(e.pointerId);
             
             const targetRect = target.getBoundingClientRect();
-            const sourceRect = source.getBoundingClientRect();
+            const isDroppedOnTarget = this.isPointInsideRect(e.clientX, e.clientY, targetRect);
             
-            if (this.isOverlapping(sourceRect, targetRect)) {
+            if (isDroppedOnTarget) {
                 // Успешное завершение
                 this.completeSphereGame(source.dataset.text);
             } else {
                 // Возвращаем на место
-                source.style.left = '20%';
-                source.style.top = '50%';
+                this.resetSpherePosition(source);
             }
             
             target.classList.remove('drag-over');
-        });
+        };
+        
+        source.addEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('pointermove', handlePointerMove, { passive: true });
+        document.addEventListener('pointerup', handlePointerUp);
+        document.addEventListener('pointercancel', handlePointerUp);
+    }
+    
+    moveSphereWithPointer(source, target, e) {
+        if (!source.parentElement) return;
+        
+        const rect = source.parentElement.getBoundingClientRect();
+        const x = Math.min(rect.width, Math.max(0, e.clientX - rect.left));
+        const y = Math.min(rect.height, Math.max(0, e.clientY - rect.top));
+        
+        source.style.left = `${x}px`;
+        source.style.top = `${y}px`;
+        source.style.transform = 'translate(-50%, -50%)';
+        
+        const targetRect = target.getBoundingClientRect();
+        const sourceRect = source.getBoundingClientRect();
+        target.classList.toggle('drag-over', this.isOverlapping(sourceRect, targetRect));
+    }
+    
+    resetSpherePosition(source) {
+        source.style.left = '20%';
+        source.style.top = '50%';
+        source.style.transform = 'translate(-50%, -50%)';
+    }
+    
+    isPointInsideRect(x, y, rect) {
+        return (
+            x >= rect.left &&
+            x <= rect.right &&
+            y >= rect.top &&
+            y <= rect.bottom
+        );
     }
     
     isOverlapping(rect1, rect2) {
@@ -330,4 +358,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
