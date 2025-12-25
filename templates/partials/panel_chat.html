@@ -1,0 +1,16 @@
+<section class="panel span-2" aria-labelledby="chatPanelTitle">
+  <div class="panel__header">
+    <div>
+      <p class="eyebrow">Диалог</p>
+      <h2 id="chatPanelTitle">Айра помогает сфокусироваться</h2>
+    </div>
+    <div class="chip" id="crisisFlag" aria-live="polite">Без кризиса</div>
+  </div>
+  <div class="chat" id="chat">
+    <div class="chat__log" id="chatLog" aria-live="polite"></div>
+    <form class="chat__composer" id="chatForm">
+      <input type="text" id="chatInput" placeholder="Спросите Айру о следующем шаге" autocomplete="off" aria-label="Сообщение для Айры">
+      <button class="button button--primary" type="submit" aria-label="Отправить сообщение">Отправить</button>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,28 @@
+<section class="panel" aria-labelledby="sessionPanelTitle">
+  <div class="panel__header">
+    <div>
+      <p class="eyebrow">Сессия</p>
+      <h2 id="sessionPanelTitle">Настройка и запуск</h2>
+    </div>
+    <div class="chip chip--accent" id="sessionState">Нет активной сессии</div>
+  </div>
+  <form class="form" id="sessionForm">
+    <label class="form__field" for="districtSelect">
+      <span>Квартал</span>
+      <select name="district" id="districtSelect" required aria-label="Выбор квартала"></select>
+    </label>
+    <label class="form__field" for="emotionInput">
+      <span>Эмоция</span>
+      <input type="text" name="emotion" id="emotionInput" placeholder="Например: тревога, ясность, выгорание" required aria-label="Опишите эмоцию">
+    </label>
+    <label class="form__field" for="intensityInput">
+      <div class="form__label-row">
+        <span>Интенсивность</span>
+        <span class="muted"><span id="intensityValue">5</span>/10</span>
+      </div>
+      <input type="range" min="1" max="10" value="5" id="intensityInput" aria-label="Интенсивность эмоции">
+    </label>
+    <button class="button button--primary" type="submit" aria-label="Запустить новую сессию">Запустить сессию</button>
+  </form>
+  <div class="session-summary" id="sessionSummary" hidden aria-live="polite"></div>
+</section>

@@ -1,0 +1,20 @@
+<section class="panel" aria-labelledby="progressPanelTitle">
+  <div class="panel__header">
+    <div>
+      <p class="eyebrow">Микрошаги</p>
+      <h2 id="progressPanelTitle">Закрепляем прогресс</h2>
+    </div>
+  </div>
+  <div class="stack">
+    <div class="progress" id="effortBar">
+      <div class="progress__label">Effort</div>
+      <div class="progress__bar"><span></span></div>
+      <div class="progress__hint" id="effortHint">Готовность к картам</div>
+    </div>
+    <div class="micro-actions">
+      <button class="button" id="logMicrostep" aria-label="Засчитать микрошаг">Засчитать микрошаг</button>
+      <button class="button button--ghost" id="completeSession" disabled aria-label="Завершить сессию">Завершить сессию</button>
+    </div>
+    <div class="history" id="history" aria-live="polite"></div>
+  </div>
+</section>

@@ -1,0 +1,53 @@
+@media (max-width: 1200px) {
+  .hero {
+    grid-template-columns: 1.5fr 1fr;
+  }
+
+  .panel__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 900px) {
+  body {
+    padding: 16px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .span-2 {
+    grid-column: span 1;
+  }
+
+  .chat__composer {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .topbar,
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .app-shell {
+    margin-bottom: 32px;
+  }
+
+  .hero__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .micro-actions {
+    grid-template-columns: 1fr;
+  }
+}
