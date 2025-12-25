@@ -93,7 +93,33 @@ class BinaryTreesManager:
             next_node_id = current_node.get('leads_to')
             if next_node_id == 'task':
                 return {'type': 'task_trigger', 'final': True}
+            elif next_node_id:
+                return self.get_node(tree_id, next_node_id)
         
+        elif node_type == 'open_or_choice':
+            # Для открытых вопросов с fallback опциями
+            # Если ответ - это текст (не из fallback), переходим к следующему узлу
+            if isinstance(answer, str) and answer.strip():
+                # Проверяем, не является ли ответ одной из fallback опций
+                fallback_options = current_node.get('fallback_options', [])
+                is_fallback = False
+                for option in fallback_options:
+                    if option.get('text') == answer or option.get('id') == answer:
+                        is_fallback = True
+                        next_node_id = option.get('next')
+                        if next_node_id:
+                            return self.get_node(tree_id, next_node_id)
+                        break
+                
+                # Если это не fallback опция, используем основной next
+                if not is_fallback:
+                    next_node_id = current_node.get('next')
+                    if next_node_id:
+                        return self.get_node(tree_id, next_node_id)
+                    # Если нет next, завершаем дерево
+                    return {'type': 'end', 'final': True}
+        
+        # Если тип узла не обработан, возвращаем None (404)
         return None
     
     def get_node(self, tree_id: str, node_id: str) -> Optional[Dict[str, Any]]:

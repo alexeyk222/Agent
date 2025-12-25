@@ -311,32 +311,45 @@ def start_tree():
 @app.route('/api/tree/traverse', methods=['POST'])
 def traverse_tree():
     """Обходит дерево на основе ответа"""
-    data = request.get_json()
-    tree_id = data.get('tree_id')
-    node_id = data.get('node_id')
-    answer = data.get('answer')
-    
-    next_node = trees_manager.traverse(tree_id, node_id, answer)
-    
-    if next_node:
-        if next_node.get('type') == 'task_trigger':
-            return jsonify({
-                'success': True,
-                'task_triggered': True,
-                'task': next_node
-            })
-        elif next_node.get('type') == 'end':
-            return jsonify({
-                'success': True,
-                'completed': True
-            })
-        else:
-            return jsonify({
-                'success': True,
-                'next_node': next_node
-            })
-    
-    return jsonify({'success': False, 'error': 'Узел не найден'}), 404
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'Отсутствуют данные'}), 400
+        
+        tree_id = data.get('tree_id')
+        node_id = data.get('node_id', 'root')
+        answer = data.get('answer')
+        
+        if not tree_id:
+            return jsonify({'success': False, 'error': 'Не указан tree_id'}), 400
+        
+        if answer is None:
+            return jsonify({'success': False, 'error': 'Не указан ответ'}), 400
+        
+        next_node = trees_manager.traverse(tree_id, node_id, answer)
+        
+        if next_node:
+            if next_node.get('type') == 'task_trigger':
+                return jsonify({
+                    'success': True,
+                    'task_triggered': True,
+                    'task': next_node
+                })
+            elif next_node.get('type') == 'end' or next_node.get('final'):
+                return jsonify({
+                    'success': True,
+                    'completed': True
+                })
+            else:
+                return jsonify({
+                    'success': True,
+                    'next_node': next_node
+                })
+        
+        return jsonify({'success': False, 'error': 'Узел не найден или неверный ответ'}), 404
+    except Exception as e:
+        print(f"Ошибка в traverse_tree: {e}")
+        return jsonify({'success': False, 'error': f'Внутренняя ошибка: {str(e)}'}), 500
 
 
 @app.route('/api/task/complete', methods=['POST'])

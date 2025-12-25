@@ -17,7 +17,7 @@ OPENAI_API_KEY = "sk-or-v1-fffca78aaa73cd1961104189a741ccab5b8bf658f310047c00896
 # - "openai/gpt-4o-mini" - недорогая, отличное качество
 # - "anthropic/claude-3-haiku" - быстрая и качественная
 # - "openai/gpt-3.5-turbo" - классика, недорогая
-OPENAI_MODEL = "openai/gpt-oss-120b:free"  # Рекомендуется для русского языка
+OPENAI_MODEL = "openai/gpt-oss-20b:free"  # Рекомендуется для русского языка
 
 # Base URL для альтернативных API провайдеров (например, OpenRouter)
 # Если используется стандартный OpenAI API, оставьте None

@@ -250,7 +250,11 @@ class City:
         unlocked = district_data.get('unlocked', False)
         
         # Вычисляем яркость и количество огней в окнах
-        brightness = min(0.3 + (level * 0.1), 1.0) if unlocked else 0.1
+        # Разблокированные районы должны быть видимыми (минимум 0.7)
+        if unlocked:
+            brightness = min(0.7 + (level * 0.05), 1.0)
+        else:
+            brightness = 0.3  # Заблокированные районы полупрозрачные
         lights_count = level * 2
         
         return {
