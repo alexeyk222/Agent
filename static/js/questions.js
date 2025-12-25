@@ -237,18 +237,60 @@ class QuestionTree {
 
     normalizeTaskData(taskData = {}) {
         const taskType = taskData.type && taskData.type !== 'task_trigger' ? taskData.type : taskData.task_type;
-        let normalizedType = taskType || 'reflection';
-        if (normalizedType === 'text_input') {
-            normalizedType = 'reflection';
-        }
+        const supportedTaskTypes = new Set([
+            'reflection',
+            'timer',
+            'choice',
+            'checklist',
+            'number_input',
+            'habit_creation',
+            'people_list'
+        ]);
+        const typeMapping = {
+            text_input: 'reflection',
+            rest_day: 'checklist',
+            look_at_balance: 'number_input',
+            pick_most_anxious: 'reflection',
+            reach_out: 'people_list'
+        };
+        const normalizedType = supportedTaskTypes.has(taskType)
+            ? taskType
+            : typeMapping[taskType] || 'reflection';
+        
+        const mappedDefaults = {
+            rest_day: {
+                prompt: 'Составь план мини-отдыха: отметь 3 простых шага восстановления.',
+                guidance: taskData.guidance || 'Выбери действия, которые помогут перезарядиться сегодня.',
+                items: taskData.items || 3
+            },
+            look_at_balance: {
+                prompt: 'Посмотри баланс и введи одно число, которое увидел.',
+                guidance: taskData.guidance || taskData.encouragement || 'Открой счёт, назови число и вернись.'
+            },
+            pick_most_anxious: {
+                prompt: 'Запиши число или факт, который тревожит больше всего.',
+                guidance: taskData.guidance || 'Опиши, почему именно это число вызывает тревогу.',
+                min_words: taskData.min_words || 5
+            },
+            reach_out: {
+                prompt: 'Назови человека, которому напишешь первым, и когда общались последний раз.',
+                action: taskData.guidance || 'Напиши короткое приветствие этому человеку.',
+                fields: taskData.fields || [{name: 'person', last_contact: 'date'}]
+            }
+        };
+        const overrides = mappedDefaults[taskType] || {};
 
         return {
+            ...taskData,
+            ...overrides,
             type: normalizedType,
-            prompt: taskData.task_text || taskData.text || 'Сделай небольшой шаг',
+            prompt: overrides.prompt || taskData.task_text || taskData.text || 'Сделай небольшой шаг',
             duration: taskData.duration,
-            guidance: taskData.guidance,
-            options: taskData.options,
-            items: taskData.items
+            guidance: overrides.guidance || taskData.guidance,
+            options: overrides.options || taskData.options,
+            items: overrides.items || taskData.items,
+            fields: overrides.fields || taskData.fields,
+            action: overrides.action || taskData.action
         };
     }
     
