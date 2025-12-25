@@ -79,8 +79,8 @@ class CardsManager:
             completed = player_data.get('completed_contracts', [])
             return contract_id in completed
 
-        # Если тип условия не задан, считаем условие выполненным, чтобы не блокировать карту
-        return True
+        # Неизвестные типы условий не считаем выполненными, чтобы не открывать карту ошибочно
+        return False
     
     def calculate_effort_cost(self, card_id: str, upgrade_level: int = 0) -> int:
         """Вычисляет стоимость карты в Effort"""
