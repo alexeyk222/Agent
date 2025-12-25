@@ -91,6 +91,11 @@ class Player:
         can_start, error = self.can_start_session()
         if not can_start:
             return {'success': False, 'error': error}
+
+        # Подготавливаем счётчики прогресса
+        self.data.setdefault('district_sessions', {})
+        self.data.setdefault('actions_history', {})
+        self.data['last_session_district'] = district_key
         
         session_data = {
             'district': district_key,
@@ -109,28 +114,62 @@ class Player:
         """Завершает сессию и начисляет награды"""
         if points is None:
             points = config.POINTS_PER_SESSION
-        
+
+        # Загружаем актуальные данные, чтобы не потерять историю при нескольких сохранениях
+        player_data = self.storage.load_player()
+        player_data.setdefault('district_sessions', {})
+        player_data.setdefault('actions_history', {})
+        player_data.setdefault('completed_levels', [])
+
         session_data['completed'] = True
         session_data['completed_at'] = datetime.now().isoformat()
         session_data['points_earned'] = points
-        
+
         # Добавляем сессию в историю
-        self.storage.add_session(session_data)
-        
-        # Начисляем очки
-        self.add_points(points)
-        
-        # Повышаем уровень квартала
+        session_record = dict(session_data)
+        session_record['timestamp'] = datetime.now().isoformat()
+        history = player_data.get('session_history', [])
+        history.append(session_record)
+        if len(history) > 50:
+            history = history[-50:]
+        player_data['session_history'] = history
+
+        # Начисляем очки устойчивости
+        player_data['stability_points'] = player_data.get('stability_points', 0) + points
+
+        # Фиксируем прогресс по кварталу
         district_key = session_data.get('district')
         if district_key:
-            self.level_up_district(district_key)
-        
-        # Проверяем разблокировки
+            district_sessions = player_data['district_sessions']
+            district_sessions[district_key] = district_sessions.get(district_key, 0) + 1
+            player_data['last_session_district'] = district_key
+
+            district_info = player_data.get('districts', {}).get(district_key)
+            if district_info is not None:
+                district_info['sessions_count'] = district_info.get('sessions_count', 0) + 1
+                district_info['level'] = district_info.get('level', 0) + 1
+
+        # Отмечаем завершённые уровни и акты
+        level_id = session_data.get('level_id')
+        if level_id and level_id not in player_data['completed_levels']:
+            player_data['completed_levels'].append(level_id)
+
+        if session_data.get('act'):
+            player_data['acts_completed'] = max(
+                player_data.get('acts_completed', 0),
+                session_data['act']
+            )
+
+        # Сохраняем обновленные данные
+        self.data = player_data
+        self.storage.save_player(self.data)
+
+        # Проверяем разблокировки после обновлений
         self.check_unlocks()
-        
-        # Обновляем данные
+
+        # Обновляем данные после возможной разблокировки
         self.data = self.storage.load_player()
-        
+
         return {
             'success': True,
             'points': points,
