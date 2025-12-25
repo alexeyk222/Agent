@@ -9,6 +9,7 @@ class Game {
         this.currentEmotion = null;
         this.currentIntensity = 5;
         this.currentSession = null;
+        this.currentTreeId = null;
         this.playerProgress = null;
         
         this.init();
@@ -130,14 +131,27 @@ class Game {
     getTreeIdForDistrict(district, emotion) {
         // Определяем дерево вопросов на основе квартала и эмоции
         const treeMap = {
-            'citadel': 'citadel_tree',
-            'oasis': 'oasis_tree',
-            'arsenal': 'arsenal_tree',
-            'forum': 'forum_tree',
-            'garden': 'garden_tree'
+            'citadel': 'citadel_volume_quality',
+            'oasis': 'oasis_body_check',
+            'arsenal': 'arsenal_one_number',
+            'forum': 'forum_connection_inventory',
+            'garden': 'garden_what_feeds'
         };
         
         return treeMap[district] || null;
+    }
+
+    updateAgentContext(nodeId = null) {
+        if (!window.agentDialog) return;
+
+        window.agentDialog.setContext({
+            district: this.currentDistrict,
+            emotion: this.currentEmotion,
+            intensity: this.currentIntensity,
+            session: this.currentSession,
+            treeId: this.currentTreeId,
+            nodeId: nodeId
+        });
     }
     
     async startSession(districtKey) {
@@ -180,13 +194,19 @@ class Game {
             
             if (data.success) {
                 this.currentSession = data.session;
+                this.updateAgentContext();
+                const treeId = this.getTreeIdForDistrict(this.currentDistrict, this.currentEmotion);
+                this.currentTreeId = treeId;
                 
-                // Переходим к диалогу с агентом
-                this.showScreen('agent-dialog');
-                
-                // Инициализируем диалог
-                if (window.agentDialog) {
-                    window.agentDialog.startDialog(data.agent_greeting, data.district_info);
+                if (treeId && window.questionTree) {
+                    this.showScreen('questions-screen');
+                    window.questionTree.startTree(treeId, this.currentDistrict);
+                } else {
+                    // Фолбек к диалогу агента, если дерево не найдено
+                    this.showScreen('agent-dialog');
+                    if (window.agentDialog) {
+                        window.agentDialog.startDialog(data.agent_greeting, data.district_info);
+                    }
                 }
             } else {
                 alert(data.error || 'Ошибка начала сессии');
@@ -454,4 +474,3 @@ function setupEventHandlers() {
         });
     }
 }
-

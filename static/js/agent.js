@@ -8,6 +8,8 @@ class AgentDialog {
         this.currentDistrict = null;
         this.currentEmotion = null;
         this.sessionContext = null;
+        this.currentNodeId = null;
+        this.currentTreeId = null;
     }
     
     startDialog(greeting, districtInfo) {
@@ -264,6 +266,14 @@ class AgentDialog {
             window.game.showScreen('sphere-minigame');
         }
     }
+
+    setContext(context = {}) {
+        this.currentDistrict = context.district;
+        this.currentEmotion = context.emotion;
+        this.sessionContext = context;
+        this.currentNodeId = context.nodeId;
+        this.currentTreeId = context.treeId;
+    }
 }
 
 // Флаг для предотвращения множественных обработчиков
@@ -388,4 +398,3 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-

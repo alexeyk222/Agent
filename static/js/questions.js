@@ -22,6 +22,9 @@ class QuestionTree {
                 this.treeHistory = [];
                 this.answers = {};
                 
+                if (window.game) {
+                    window.game.updateAgentContext(this.currentNode?.node_id);
+                }
                 this.renderQuestion(this.currentNode);
             }
         } catch (error) {
@@ -63,6 +66,10 @@ class QuestionTree {
             backBtn.textContent = '← Назад';
             backBtn.onclick = () => this.goBack();
             container.appendChild(backBtn);
+        }
+
+        if (window.game) {
+            window.game.updateAgentContext(node?.node_id);
         }
     }
     
@@ -197,6 +204,9 @@ class QuestionTree {
             if (data.success) {
                 if (data.next_node) {
                     this.currentNode = data.next_node;
+                    if (window.game) {
+                        window.game.updateAgentContext(this.currentNode?.node_id);
+                    }
                     this.renderQuestion(this.currentNode);
                 } else if (data.task_triggered) {
                     // Переходим к заданию
@@ -212,14 +222,34 @@ class QuestionTree {
     }
     
     triggerTask(taskData) {
+        const normalizedTask = this.normalizeTaskData(taskData);
+        
         // Переходим к экрану задания
         if (window.taskManager) {
-            window.taskManager.startTask(taskData);
+            window.taskManager.startTask(normalizedTask);
         }
         
         if (window.game) {
             window.game.showScreen('task-screen');
+            window.game.updateAgentContext(this.currentNode?.node_id);
         }
+    }
+
+    normalizeTaskData(taskData = {}) {
+        const taskType = taskData.type && taskData.type !== 'task_trigger' ? taskData.type : taskData.task_type;
+        let normalizedType = taskType || 'reflection';
+        if (normalizedType === 'text_input') {
+            normalizedType = 'reflection';
+        }
+
+        return {
+            type: normalizedType,
+            prompt: taskData.task_text || taskData.text || 'Сделай небольшой шаг',
+            duration: taskData.duration,
+            guidance: taskData.guidance,
+            options: taskData.options,
+            items: taskData.items
+        };
     }
     
     continueToNext(node) {
@@ -242,9 +272,19 @@ class QuestionTree {
     }
     
     completeTree() {
-        // Дерево завершено, переходим к результатам
+        // Дерево завершено, переходим к финальному заданию/результату
+        if (window.taskManager) {
+            const emotion = window.game?.currentEmotion;
+            window.taskManager.startTask({
+                type: 'reflection',
+                prompt: emotion ? `Запиши одну мысль о том, как ты справляешься с эмоцией «${emotion}».` : 'Запиши одну мысль о том, что ты понял из вопросов.',
+                placeholder: 'Например: я заметил, что мне помогает...'
+            });
+        }
+
         if (window.game) {
-            window.game.showScreen('results-screen');
+            window.game.showScreen('task-screen');
+            window.game.updateAgentContext(null);
         }
     }
 }
@@ -253,4 +293,3 @@ class QuestionTree {
 document.addEventListener('DOMContentLoaded', () => {
     window.questionTree = new QuestionTree();
 });
-
