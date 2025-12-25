@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}InnerQuest: Город Сфер{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__mark" aria-hidden="true">
+          <span class="pulse"></span>
+        </div>
+        <div>
+          <div class="brand__title">InnerQuest</div>
+          <div class="brand__subtitle">Город Сфер</div>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <div class="status-pill" id="statusBadge">Готов к запуску</div>
+        <button class="button button--ghost" id="saveButton" type="button" aria-label="Сохранить текущий прогресс">Сохранить сессию</button>
+      </div>
+    </header>
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <footer class="footer">
+    <p class="muted">InnerQuest · поддержка фокуса и действий</p>
+  </footer>
+
+  <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+  <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
