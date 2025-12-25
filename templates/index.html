@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>InnerQuest: Город Сфер</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">InnerQuest · Город Сфер</p>
+        <h1>Новый фронтенд для тёплого путешествия по городу</h1>
+        <p class="lede">Следите за прогрессом, общайтесь с Айрой и исследуйте кварталы в спокойном, стабильном интерфейсе без лишней сложности.</p>
+        <div class="hero-actions">
+          <button class="btn primary" id="refresh-progress">Обновить прогресс</button>
+          <button class="btn ghost" id="scroll-to-session">Начать сессию</button>
+        </div>
+      </div>
+      <div class="glow-card">
+        <p class="label">Состояние города</p>
+        <div class="stats-grid" aria-live="polite">
+          <div class="stat">
+            <p class="stat-label">Устойчивость</p>
+            <p class="stat-value" id="stat-stability">–</p>
+            <p class="stat-sub">Очки за завершённые сессии</p>
+          </div>
+          <div class="stat">
+            <p class="stat-label">Effort</p>
+            <p class="stat-value" id="stat-effort">–</p>
+            <p class="stat-sub">Валюта для карт и действий</p>
+          </div>
+          <div class="stat">
+            <p class="stat-label">Акты</p>
+            <p class="stat-value" id="stat-acts">–</p>
+            <p class="stat-sub">Пройдено сюжетных актов</p>
+          </div>
+        </div>
+        <div class="meta-row">
+          <div>
+            <p class="label">Последняя сессия</p>
+            <p class="meta" id="meta-last-session">—</p>
+          </div>
+          <div>
+            <p class="label">Последний район</p>
+            <p class="meta" id="meta-last-district">—</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="label">Карта города</p>
+            <h2>Кварталы и их состояние</h2>
+          </div>
+          <div class="pill" id="district-summary">—</div>
+        </div>
+        <div class="district-grid" id="district-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="panel" id="session-panel">
+        <div class="panel-head">
+          <div>
+            <p class="label">Сессия</p>
+            <h2>Запуск и финал</h2>
+          </div>
+          <div class="session-state" id="session-state">Сессия не начата</div>
+        </div>
+        <form id="session-form" class="form">
+          <div class="form-grid">
+            <label class="field">
+              <span>Квартал</span>
+              <select id="field-district" required></select>
+            </label>
+            <label class="field">
+              <span>Эмоция</span>
+              <select id="field-emotion" required></select>
+            </label>
+            <label class="field">
+              <span>Интенсивность</span>
+              <div class="range-row">
+                <input type="range" id="field-intensity" min="1" max="10" value="5">
+                <span class="range-value" id="intensity-value">5</span>
+              </div>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary" id="start-session">Начать сессию</button>
+            <button type="button" class="btn" id="end-session" disabled>Завершить сессию</button>
+            <label class="field inline">
+              <span>Очки за сессию</span>
+              <input type="number" id="field-points" min="1" max="50" value="15">
+            </label>
+          </div>
+        </form>
+        <div class="session-info" id="session-info" hidden></div>
+      </section>
+
+      <section class="panel chat-panel" id="chat-panel">
+        <div class="panel-head">
+          <div>
+            <p class="label">Айра</p>
+            <h2>Диалог наставника</h2>
+          </div>
+          <div class="pill soft">Поддержка в реальном времени</div>
+        </div>
+        <div class="chat-window" id="chat-window" aria-live="polite"></div>
+        <form id="chat-form" class="chat-input">
+          <input type="text" id="chat-message" name="message" placeholder="Введите сообщение для Айры" autocomplete="off" required>
+          <button type="submit" class="btn primary" id="send-message">Отправить</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="label">Карты</p>
+            <h2>Открытые и доступные</h2>
+          </div>
+          <div class="pill soft" id="effort-balance">Effort: —</div>
+        </div>
+        <div class="cards-layout">
+          <div>
+            <h3>Открытые</h3>
+            <div class="cards-grid" id="owned-cards"></div>
+          </div>
+          <div>
+            <h3>Доступные к открытию</h3>
+            <div class="cards-grid" id="available-cards"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="label">История</p>
+            <h2>Недавние шаги</h2>
+          </div>
+          <button class="btn ghost" id="refresh-history">Обновить историю</button>
+        </div>
+        <div class="history">
+          <div>
+            <p class="label">Сессии</p>
+            <ul id="history-sessions" class="list"></ul>
+          </div>
+          <div>
+            <p class="label">Память Айры</p>
+            <ul id="history-memory" class="list subtle"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
