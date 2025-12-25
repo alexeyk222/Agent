@@ -393,7 +393,7 @@ class TaskManager {
                 // Показываем награды
                 this.showTaskRewards(data.rewards);
                 
-                // Переходим к следующему этапу
+                // Переходим к мини-играм или результатам после задания
                 setTimeout(() => {
                     if (window.game) {
                         window.game.showScreen('sphere-minigame');
@@ -468,4 +468,3 @@ class TaskManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.taskManager = new TaskManager();
 });
-

@@ -22,6 +22,9 @@ class QuestionTree {
                 this.treeHistory = [];
                 this.answers = {};
                 
+                if (window.game) {
+                    window.game.updateAgentContext(this.currentNode?.node_id);
+                }
                 this.renderQuestion(this.currentNode);
             }
         } catch (error) {
@@ -63,6 +66,10 @@ class QuestionTree {
             backBtn.textContent = '← Назад';
             backBtn.onclick = () => this.goBack();
             container.appendChild(backBtn);
+        }
+
+        if (window.game) {
+            window.game.updateAgentContext(node?.node_id);
         }
     }
     
@@ -197,6 +204,9 @@ class QuestionTree {
             if (data.success) {
                 if (data.next_node) {
                     this.currentNode = data.next_node;
+                    if (window.game) {
+                        window.game.updateAgentContext(this.currentNode?.node_id);
+                    }
                     this.renderQuestion(this.currentNode);
                 } else if (data.task_triggered) {
                     // Переходим к заданию
@@ -212,14 +222,76 @@ class QuestionTree {
     }
     
     triggerTask(taskData) {
+        const normalizedTask = this.normalizeTaskData(taskData);
+        
         // Переходим к экрану задания
         if (window.taskManager) {
-            window.taskManager.startTask(taskData);
+            window.taskManager.startTask(normalizedTask);
         }
         
         if (window.game) {
             window.game.showScreen('task-screen');
+            window.game.updateAgentContext(this.currentNode?.node_id);
         }
+    }
+
+    normalizeTaskData(taskData = {}) {
+        const taskType = taskData.type && taskData.type !== 'task_trigger' ? taskData.type : taskData.task_type;
+        const supportedTaskTypes = new Set([
+            'reflection',
+            'timer',
+            'choice',
+            'checklist',
+            'number_input',
+            'habit_creation',
+            'people_list'
+        ]);
+        const typeMapping = {
+            text_input: 'reflection',
+            rest_day: 'checklist',
+            look_at_balance: 'number_input',
+            pick_most_anxious: 'reflection',
+            reach_out: 'people_list'
+        };
+        const normalizedType = supportedTaskTypes.has(taskType)
+            ? taskType
+            : typeMapping[taskType] || 'reflection';
+        
+        const mappedDefaults = {
+            rest_day: {
+                prompt: 'Составь план мини-отдыха: отметь 3 простых шага восстановления.',
+                guidance: taskData.guidance || 'Выбери действия, которые помогут перезарядиться сегодня.',
+                items: taskData.items || 3
+            },
+            look_at_balance: {
+                prompt: 'Посмотри баланс и введи одно число, которое увидел.',
+                guidance: taskData.guidance || taskData.encouragement || 'Открой счёт, назови число и вернись.'
+            },
+            pick_most_anxious: {
+                prompt: 'Запиши число или факт, который тревожит больше всего.',
+                guidance: taskData.guidance || 'Опиши, почему именно это число вызывает тревогу.',
+                min_words: taskData.min_words || 5
+            },
+            reach_out: {
+                prompt: 'Назови человека, которому напишешь первым, и когда общались последний раз.',
+                action: taskData.guidance || 'Напиши короткое приветствие этому человеку.',
+                fields: taskData.fields || [{name: 'person', last_contact: 'date'}]
+            }
+        };
+        const overrides = mappedDefaults[taskType] || {};
+
+        return {
+            ...taskData,
+            ...overrides,
+            type: normalizedType,
+            prompt: overrides.prompt || taskData.task_text || taskData.text || 'Сделай небольшой шаг',
+            duration: taskData.duration,
+            guidance: overrides.guidance || taskData.guidance,
+            options: overrides.options || taskData.options,
+            items: overrides.items || taskData.items,
+            fields: overrides.fields || taskData.fields,
+            action: overrides.action || taskData.action
+        };
     }
     
     continueToNext(node) {
@@ -242,9 +314,19 @@ class QuestionTree {
     }
     
     completeTree() {
-        // Дерево завершено, переходим к результатам
+        // Дерево завершено, переходим к финальному заданию/результату
+        if (window.taskManager) {
+            const emotion = window.game?.currentEmotion;
+            window.taskManager.startTask({
+                type: 'reflection',
+                prompt: emotion ? `Запиши одну мысль о том, как ты справляешься с эмоцией «${emotion}».` : 'Запиши одну мысль о том, что ты понял из вопросов.',
+                placeholder: 'Например: я заметил, что мне помогает...'
+            });
+        }
+
         if (window.game) {
-            window.game.showScreen('results-screen');
+            window.game.showScreen('task-screen');
+            window.game.updateAgentContext(null);
         }
     }
 }
@@ -253,4 +335,3 @@ class QuestionTree {
 document.addEventListener('DOMContentLoaded', () => {
     window.questionTree = new QuestionTree();
 });
-
