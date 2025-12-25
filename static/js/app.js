@@ -34,6 +34,15 @@
     completeSession: document.getElementById('completeSession')
   };
 
+  function escapeHtml(text) {
+    return String(text ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   const templates = {
     districtCard(districtKey, data) {
       const brightness = Math.round((data.visual?.brightness || 0.6) * 100);
@@ -69,7 +78,8 @@
       const isAgent = role === 'agent';
       const meta = isAgent ? 'Айра' : 'Вы';
       const roleClass = isAgent ? 'message message--agent' : 'message';
-      return `<div class="${roleClass}"><div class="message__meta">${meta}</div>${text}</div>`;
+      const safeText = escapeHtml(text).replace(/\n/g, '<br>');
+      return `<div class="${roleClass}"><div class="message__meta">${meta}</div>${safeText}</div>`;
     },
 
     card(card, owned, effort) {
