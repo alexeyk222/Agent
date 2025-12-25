@@ -6,6 +6,10 @@ class Minigames {
     constructor() {
         this.sphereDragging = false;
         this.spherePointerId = null;
+        this.sphereGameInitialized = false;
+        this.sphereMoveScheduled = false;
+        this.sphereLastPointer = null;
+        this.sphereDragBounds = null;
         this.breathingCount = 0;
         this.breathingInterval = null;
         this.breathingPhase = 'inhale'; // inhale, hold, exhale
@@ -19,6 +23,8 @@ class Minigames {
         const sphereTarget = document.getElementById('sphere-target');
         
         if (!sphereInput || !createSphereBtn || !sphereSource || !sphereTarget) return;
+        if (this.sphereGameInitialized) return;
+        this.sphereGameInitialized = true;
         
         // Создание сферы
         createSphereBtn.addEventListener('click', () => {
@@ -64,16 +70,17 @@ class Minigames {
             
             this.sphereDragging = true;
             this.spherePointerId = e.pointerId;
+            this.sphereDragBounds = this.computeSphereDragBounds(source, target);
             source.style.cursor = 'grabbing';
             source.classList.add('is-dragging');
             source.setPointerCapture?.(e.pointerId);
-            this.moveSphereWithPointer(source, target, e);
+            this.queueSphereMove(source, target, e.clientX, e.clientY);
             e.preventDefault();
         };
         
         const handlePointerMove = (e) => {
             if (!this.sphereDragging || e.pointerId !== this.spherePointerId) return;
-            this.moveSphereWithPointer(source, target, e);
+            this.queueSphereMove(source, target, e.clientX, e.clientY);
         };
         
         const handlePointerUp = (e) => {
@@ -81,12 +88,15 @@ class Minigames {
             
             this.sphereDragging = false;
             this.spherePointerId = null;
+            this.sphereMoveScheduled = false;
+            this.sphereLastPointer = null;
             source.style.cursor = 'grab';
             source.classList.remove('is-dragging');
             source.releasePointerCapture?.(e.pointerId);
             
-            const targetRect = target.getBoundingClientRect();
+            const targetRect = this.sphereDragBounds?.targetRect || target.getBoundingClientRect();
             const isDroppedOnTarget = this.isPointInsideRect(e.clientX, e.clientY, targetRect);
+            this.sphereDragBounds = null;
             
             if (isDroppedOnTarget) {
                 // Успешное завершение
@@ -105,19 +115,51 @@ class Minigames {
         document.addEventListener('pointercancel', handlePointerUp);
     }
     
-    moveSphereWithPointer(source, target, e) {
-        if (!source.parentElement) return;
+    computeSphereDragBounds(source, target) {
+        const parentRect = source.parentElement?.getBoundingClientRect();
+        if (!parentRect) return null;
         
-        const rect = source.parentElement.getBoundingClientRect();
-        const x = Math.min(rect.width, Math.max(0, e.clientX - rect.left));
-        const y = Math.min(rect.height, Math.max(0, e.clientY - rect.top));
+        return {
+            parentRect,
+            targetRect: target.getBoundingClientRect(),
+            halfWidth: source.offsetWidth / 2,
+            halfHeight: source.offsetHeight / 2
+        };
+    }
+    
+    queueSphereMove(source, target, clientX, clientY) {
+        this.sphereLastPointer = { clientX, clientY };
+        if (this.sphereMoveScheduled) return;
+        
+        this.sphereMoveScheduled = true;
+        requestAnimationFrame(() => this.applySphereMove(source, target));
+    }
+    
+    applySphereMove(source, target) {
+        this.sphereMoveScheduled = false;
+        if (!this.sphereLastPointer) return;
+        
+        if (!this.sphereDragBounds) {
+            this.sphereDragBounds = this.computeSphereDragBounds(source, target);
+        }
+        
+        const bounds = this.sphereDragBounds;
+        if (!bounds) return;
+        
+        const { parentRect, targetRect, halfWidth, halfHeight } = bounds;
+        const x = Math.min(parentRect.width, Math.max(0, this.sphereLastPointer.clientX - parentRect.left));
+        const y = Math.min(parentRect.height, Math.max(0, this.sphereLastPointer.clientY - parentRect.top));
         
         source.style.left = `${x}px`;
         source.style.top = `${y}px`;
         source.style.transform = 'translate(-50%, -50%)';
         
-        const targetRect = target.getBoundingClientRect();
-        const sourceRect = source.getBoundingClientRect();
+        const sourceRect = {
+            left: this.sphereLastPointer.clientX - halfWidth,
+            right: this.sphereLastPointer.clientX + halfWidth,
+            top: this.sphereLastPointer.clientY - halfHeight,
+            bottom: this.sphereLastPointer.clientY + halfHeight
+        };
         target.classList.toggle('drag-over', this.isOverlapping(sourceRect, targetRect));
     }
     
@@ -125,6 +167,9 @@ class Minigames {
         source.style.left = '20%';
         source.style.top = '50%';
         source.style.transform = 'translate(-50%, -50%)';
+        this.sphereDragBounds = null;
+        this.sphereLastPointer = null;
+        this.sphereMoveScheduled = false;
     }
     
     isPointInsideRect(x, y, rect) {
@@ -146,6 +191,15 @@ class Minigames {
     }
     
     async completeSphereGame(sphereText) {
+        if (!sphereText) {
+            alert('Сначала создай сферу, используя поле ввода над площадкой');
+            const source = document.getElementById('sphere-source');
+            if (source) {
+                this.resetSpherePosition(source);
+            }
+            return;
+        }
+        
         // Анимация успеха
         const target = document.getElementById('sphere-target');
         if (target) {
