@@ -1,7 +1,7 @@
 {
   "player_id": "default",
   "created_at": "2025-12-25T10:31:35.437335",
-  "stability_points": 0,
+  "stability_points": 15,
   "districts": {
     "oasis": {
       "level": 0,
@@ -16,10 +16,11 @@
       "theme": "relationships"
     },
     "citadel": {
-      "level": 0,
+      "level": 1,
       "unlocked": true,
       "name": "Цитадель",
-      "theme": "work"
+      "theme": "work",
+      "sessions_count": 1
     },
     "arsenal": {
       "level": 0,
@@ -34,7 +35,19 @@
       "theme": "personal"
     }
   },
-  "session_history": [],
+  "session_history": [
+    {
+      "completed": true,
+      "district": "citadel",
+      "emotion": "Тревога",
+      "intensity": 5,
+      "level_id": "citadel_1",
+      "started_at": "2025-12-25T19:24:36.264527",
+      "completed_at": "2025-12-25T19:24:49.010002",
+      "points_earned": 15,
+      "timestamp": "2025-12-25T19:24:49.010007"
+    }
+  ],
   "agent_memory": [
     {
       "text": "Сессия в citadel: Выгорание. Игрок: Начал сессию в Цитадель с эмоцией Выгорание (7/10)... Айра: *Внутренний голос Айры мягко проникает в пространство Цитадели, как тёплый луч солнца, пробивающийся...",
@@ -51,23 +64,28 @@
   ],
   "rituals": [],
   "goals": [],
-  "last_session_time": "2025-12-25T17:34:58.304002",
+  "last_session_time": "2025-12-25T19:25:04.609730",
   "achievements": [],
-  "last_save": "2025-12-25T17:34:58.304008",
-  "effort": 8,
+  "last_save": "2025-12-25T19:27:35.379458",
+  "effort": 9,
   "session_streak": 0,
   "owned_cards": [],
   "equipped_card": null,
-  "completed_levels": [],
+  "completed_levels": [
+    "citadel_1"
+  ],
   "active_bosses": [],
   "actions_history": {
     "reflection": 4,
     "checklist": 2,
     "look_at_balance": 1,
-    "pick_most_anxious": 1
+    "pick_most_anxious": 1,
+    "microstep": 2
   },
-  "district_sessions": {},
+  "district_sessions": {
+    "citadel": 1
+  },
   "acts_completed": 0,
   "guru_mode_unlocked": false,
-  "last_session_district": "arsenal"
+  "last_session_district": "citadel"
 }
