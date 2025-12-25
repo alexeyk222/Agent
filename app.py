@@ -32,6 +32,40 @@ def get_player():
     return current_player
 
 
+def build_districts_overview(player: game_engine.Player) -> dict:
+    """Формирует данные по кварталам с визуалом"""
+    districts = {}
+    for key, district_data in player.data.get('districts', {}).items():
+        districts[key] = {
+            'name': district_data.get('name'),
+            'level': district_data.get('level', 0),
+            'unlocked': district_data.get('unlocked', False),
+            'theme': district_data.get('theme'),
+            'visual': game_engine.City.get_visual_state(district_data)
+        }
+    return districts
+
+
+def build_progress_payload(player: game_engine.Player, include_districts: bool = False) -> dict:
+    """Возвращает данные прогресса, включая доступные карты"""
+    payload = {
+        'stability_points': player.get_stability_points(),
+        'effort': player.data.get('effort', 0),
+        'available_cards': cards_manager.get_available_cards(player.data),
+        'owned_cards': player.data.get('owned_cards', []),
+        'district_sessions': player.data.get('district_sessions', {}),
+        'completed_levels': player.data.get('completed_levels', []),
+        'acts_completed': player.data.get('acts_completed', 0),
+        'actions_history': player.data.get('actions_history', {})
+    }
+
+    if include_districts:
+        payload['districts'] = build_districts_overview(player)
+        payload['last_session'] = player.data.get('last_session_time')
+
+    return payload
+
+
 @app.route('/')
 def index():
     """Главная страница игры"""
@@ -43,21 +77,9 @@ def get_progress():
     """Получает прогресс игрока"""
     player = get_player()
     
-    districts = {}
-    for key, district_data in player.data.get('districts', {}).items():
-        districts[key] = {
-            'name': district_data.get('name'),
-            'level': district_data.get('level', 0),
-            'unlocked': district_data.get('unlocked', False),
-            'theme': district_data.get('theme'),
-            'visual': game_engine.City.get_visual_state(district_data)
-        }
-    
     return jsonify({
         'success': True,
-        'stability_points': player.get_stability_points(),
-        'districts': districts,
-        'last_session': player.data.get('last_session_time')
+        **build_progress_payload(player, include_districts=True)
     })
 
 
@@ -89,6 +111,18 @@ def start_session():
     
     if not result.get('success'):
         return jsonify(result), 400
+
+    # Определяем сценарный уровень для фиксации прогресса
+    current_sessions = player.data.get('district_sessions', {}).get(district_key, 0)
+    level_data = scenarios_manager.get_current_level(district_key, current_sessions + 1)
+
+    if level_data:
+        result['session']['level_id'] = level_data.get('level_id')
+        if level_data.get('act'):
+            result['session']['act'] = level_data.get('act')
+        rewards = level_data.get('rewards', {})
+        if rewards.get('unlocks'):
+            result['session']['unlocks'] = rewards.get('unlocks')
     
     # Получаем информацию о квартале для контекста
     district_info = game_engine.City.get_district_info(district_key)
@@ -113,7 +147,8 @@ def start_session():
         'success': True,
         'session': result['session'],
         'agent_greeting': greeting.get('response', 'Привет! Я Айра, твой наставник. Как дела?'),
-        'district_info': district_info
+        'district_info': district_info,
+        'progress': build_progress_payload(player)
     })
 
 
@@ -200,7 +235,8 @@ def end_session():
         'unlocked_districts': [
             key for key, dist in player.data.get('districts', {}).items()
             if dist.get('unlocked', False)
-        ]
+        ],
+        'progress': build_progress_payload(player)
     })
 
 
@@ -312,6 +348,31 @@ def complete_task():
     task_data = data.get('task')
     result = data.get('result')
     
+    player.data.setdefault('actions_history', {})
+    player.data.setdefault('completed_levels', [])
+    
+    # Фиксируем выполнение задачи/микрошагов для разблокировок карт
+    task_key = (
+        (task_data or {}).get('action_key') or
+        (task_data or {}).get('task_type') or
+        (task_data or {}).get('type') or
+        'task_completed'
+    )
+    player.data['actions_history'][task_key] = player.data['actions_history'].get(task_key, 0) + 1
+
+    if (task_data or {}).get('type') == 'microstep' or (task_data or {}).get('task_type') == 'microstep':
+        player.data['actions_history']['microstep'] = player.data['actions_history'].get('microstep', 0) + 1
+
+    level_id = (task_data or {}).get('level_id')
+    if level_id and level_id not in player.data['completed_levels']:
+        player.data['completed_levels'].append(level_id)
+
+    if (task_data or {}).get('act'):
+        player.data['acts_completed'] = max(
+            player.data.get('acts_completed', 0),
+            task_data.get('act')
+        )
+    
     # Начисляем Effort за выполнение
     effort_earned = 1  # Базовый Effort за микрошаг
     player.data['effort'] = player.data.get('effort', 0) + effort_earned
@@ -326,7 +387,8 @@ def complete_task():
         'rewards': {
             'stability_points': 5,
             'effort': effort_earned
-        }
+        },
+        'progress': build_progress_payload(player)
     })
 
 
@@ -496,4 +558,3 @@ if __name__ == '__main__':
         port=config.FLASK_PORT,
         debug=config.FLASK_DEBUG
     )
-
