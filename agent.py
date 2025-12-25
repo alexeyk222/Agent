@@ -14,45 +14,47 @@ class AgentAira:
     def __init__(self, player: game_engine.Player):
         self.player = player
         self.filter = ethical_filter.EthicalFilter()
+        self.llm_enabled = getattr(config, 'LLM_ENABLED', True)
         
         # Настраиваем OpenAI клиент
         # Поддержка альтернативных API провайдеров (OpenRouter и др.)
         self.client = None
         
-        try:
-            # Проверяем, используется ли OpenRouter или другой альтернативный провайдер
-            if hasattr(config, 'OPENAI_BASE_URL') and config.OPENAI_BASE_URL:
-                # Для OpenRouter и других альтернативных провайдеров
-                # Используем base_url при создании клиента
-                import httpx
-                
-                # Создаем кастомный HTTP клиент для обхода проблем с proxies
-                http_client = httpx.Client(
-                    base_url=config.OPENAI_BASE_URL,
-                    headers={
-                        "Authorization": f"Bearer {config.OPENAI_API_KEY}",
-                        "HTTP-Referer": "https://github.com/innerquest-game",
-                        "X-Title": "InnerQuest Game"
-                    },
-                    timeout=30.0
-                )
-                
-                self.client = OpenAI(
-                    api_key=config.OPENAI_API_KEY,
-                    base_url=config.OPENAI_BASE_URL,
-                    http_client=http_client
-                )
-            else:
-                # Стандартный OpenAI API
-                self.client = OpenAI(api_key=config.OPENAI_API_KEY)
-        except Exception as e:
-            # Если ошибка при инициализации, пробуем простой вариант
+        if self.llm_enabled:
             try:
-                self.client = OpenAI(api_key=config.OPENAI_API_KEY)
-            except Exception as e2:
-                # Если ничего не работает, клиент будет None и будем использовать fallback
-                self.client = None
-                print(f"Warning: OpenAI client initialization failed: {e2}")
+                # Проверяем, используется ли OpenRouter или другой альтернативный провайдер
+                if hasattr(config, 'OPENAI_BASE_URL') and config.OPENAI_BASE_URL:
+                    # Для OpenRouter и других альтернативных провайдеров
+                    # Используем base_url при создании клиента
+                    import httpx
+                    
+                    # Создаем кастомный HTTP клиент для обхода проблем с proxies
+                    http_client = httpx.Client(
+                        base_url=config.OPENAI_BASE_URL,
+                        headers={
+                            "Authorization": f"Bearer {config.OPENAI_API_KEY}",
+                            "HTTP-Referer": "https://github.com/innerquest-game",
+                            "X-Title": "InnerQuest Game"
+                        },
+                        timeout=30.0
+                    )
+                    
+                    self.client = OpenAI(
+                        api_key=config.OPENAI_API_KEY,
+                        base_url=config.OPENAI_BASE_URL,
+                        http_client=http_client
+                    )
+                else:
+                    # Стандартный OpenAI API
+                    self.client = OpenAI(api_key=config.OPENAI_API_KEY)
+            except Exception as e:
+                # Если ошибка при инициализации, пробуем простой вариант
+                try:
+                    self.client = OpenAI(api_key=config.OPENAI_API_KEY)
+                except Exception as e2:
+                    # Если ничего не работает, клиент будет None и будем использовать fallback
+                    self.client = None
+                    print(f"Warning: OpenAI client initialization failed: {e2}")
         
         # Системный промпт для Айры
         self.system_prompt = """Ты — Айра, мудрый и сочувствующий AI-наставник в игре InnerQuest: Город Сфер. 
@@ -112,6 +114,15 @@ class AgentAira:
             {'role': 'system', 'content': self.system_prompt},
             {'role': 'user', 'content': context + f"\n\nИгрок говорит: {user_message}"}
         ]
+        
+        if not self.llm_enabled:
+            fallback = self._generate_fallback_response(user_message)
+            return {
+                'response': f"LLM сейчас отключён, но я рядом. {fallback}",
+                'is_crisis': False,
+                'block_game': False,
+                'llm_disabled': True
+            }
         
         try:
             # Проверяем наличие клиента
@@ -202,4 +213,3 @@ class AgentAira:
             return "Апатия говорит о том, что ресурсы на исходе. Не нужно больших действий — просто маленький шаг. Что это может быть?"
         
         return "Я здесь, чтобы поддержать тебя. Расскажи, что происходит?"
-
