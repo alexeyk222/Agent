@@ -735,6 +735,7 @@ body {
     background: var(--bg-secondary);
     border-radius: 20px;
     overflow: hidden;
+    touch-action: none;
 }
 
 .sphere-source {
@@ -749,6 +750,7 @@ body {
     cursor: grab;
     box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
     transition: transform 0.2s ease;
+    touch-action: none;
 }
 
 .sphere-source:active {
@@ -816,6 +818,18 @@ body {
     background: radial-gradient(circle, rgba(33, 150, 243, 0.3), transparent);
     border-radius: 50%;
     animation: patternRotate 8s linear infinite;
+}
+
+@media (max-width: 768px) {
+    .sphere-source {
+        width: 96px;
+        height: 96px;
+    }
+    
+    .sphere-target {
+        width: 180px;
+        height: 180px;
+    }
 }
 
 @keyframes patternRotate {
@@ -1118,4 +1132,3 @@ body {
 .screen.active > * {
     animation: fadeIn 0.5s ease;
 }
-

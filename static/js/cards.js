@@ -8,6 +8,7 @@ class CardRail {
         this.equippedCard = null;
         this.selectedCard = null;
         this.draggedCard = null;
+        this.pointerDrag = null;
     }
     
     async loadCards() {
@@ -70,6 +71,7 @@ class CardRail {
         const card = document.createElement('div');
         card.className = `card card-${cardData.rarity} ${cardData.type}`;
         card.dataset.cardId = cardData.card_id;
+        card.tabIndex = 0;
         
         // Иконка типа
         const typeIcon = document.createElement('div');
@@ -134,6 +136,12 @@ class CardRail {
         card.draggable = true;
         card.ondragstart = (e) => this.handleDragStart(e, cardData);
         card.ondragend = (e) => this.handleDragEnd(e);
+        
+        // Pointer Events для сенсорных устройств
+        this.attachPointerHandlers(card, cardData, isActive);
+        
+        // Клавиатурный fallback
+        card.addEventListener('keydown', (e) => this.handleCardKeydown(e, cardData, isActive));
         
         // Click для деталей
         card.onclick = () => this.showCardDetails(cardData);
@@ -212,6 +220,89 @@ class CardRail {
                 this.equipCard(this.draggedCard.card_id);
             }
         };
+    }
+    
+    attachPointerHandlers(card, cardData, isActive) {
+        const activeSlot = () => document.querySelector('.card-slot.active');
+        
+        const clearDragVisuals = () => {
+            card.classList.remove('touch-dragging');
+            card.style.transform = '';
+            card.style.transition = '';
+            activeSlot()?.classList.remove('drag-over');
+            this.pointerDrag = null;
+        };
+        
+        card.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('button')) return;
+            
+            this.pointerDrag = {
+                pointerId: e.pointerId,
+                cardData,
+                cardElement: card,
+                startX: e.clientX,
+                startY: e.clientY,
+                moved: false
+            };
+            
+            card.setPointerCapture?.(e.pointerId);
+            card.classList.add('touch-dragging');
+            card.style.transition = 'none';
+        });
+        
+        card.addEventListener('pointermove', (e) => {
+            if (!this.pointerDrag || this.pointerDrag.pointerId !== e.pointerId) return;
+            
+            const deltaX = e.clientX - this.pointerDrag.startX;
+            const deltaY = e.clientY - this.pointerDrag.startY;
+            const distance = Math.abs(deltaX) + Math.abs(deltaY);
+            if (distance > 6) {
+                this.pointerDrag.moved = true;
+            }
+            
+            if (this.pointerDrag.moved) {
+                card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            }
+            
+            const slot = activeSlot();
+            if (slot) {
+                const rect = slot.getBoundingClientRect();
+                const isOver = this.isPointInsideRect(e.clientX, e.clientY, rect);
+                slot.classList.toggle('drag-over', isOver);
+            }
+        }, { passive: true });
+        
+        const pointerCleanup = (e) => {
+            if (!this.pointerDrag || this.pointerDrag.pointerId !== e.pointerId) return;
+            
+            const slot = activeSlot();
+            const droppedOnActive = slot && this.isPointInsideRect(e.clientX, e.clientY, slot.getBoundingClientRect());
+            
+            if (this.pointerDrag.moved && droppedOnActive) {
+                this.equipCard(cardData.card_id);
+            }
+            
+            card.releasePointerCapture?.(e.pointerId);
+            clearDragVisuals();
+        };
+        
+        card.addEventListener('pointerup', pointerCleanup);
+        card.addEventListener('pointercancel', pointerCleanup);
+    }
+    
+    handleCardKeydown(e, cardData, isActive) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (isActive) {
+                this.activateCard(cardData.card_id);
+            } else {
+                this.equipCard(cardData.card_id);
+            }
+        }
+    }
+    
+    isPointInsideRect(x, y, rect) {
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
     }
     
     async equipCard(cardId) {
@@ -439,4 +530,3 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
-
