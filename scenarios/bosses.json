@@ -1,0 +1,160 @@
+{
+  "bosses": [
+    {
+      "boss_id": "ping_whisper",
+      "name": "Шепот Пинга",
+      "act": 1,
+      "district": "all",
+      "description": "Сущность отвлечений и уведомлений. Рассеивает фокус.",
+      "trigger": {
+        "type": "act_progression",
+        "act": 1,
+        "sessions_in_act": 5
+      },
+      "effects": {
+        "distraction_increase": 30,
+        "focus_penalty": -2,
+        "hazard_spawn": "notification_spam"
+      },
+      "defeat_strategy": "Focus on Skill cards, ignore distractions",
+      "defeat_conditions": [
+        {"type": "skill_usage", "count": 5},
+        {"type": "focus_maintained", "sessions": 3}
+      ],
+      "dialogue": {
+        "appearance": "Пинг... пинг... пинг... Внимание рассеивается...",
+        "defeat": "Тишина. Шёпот утих. Ты научился не реагировать."
+      }
+    },
+    {
+      "boss_id": "accountant_deadlines",
+      "name": "Счётовод Дедлайнов",
+      "act": 2,
+      "district": "citadel",
+      "description": "Олицетворение перфекционизма. Навязывает 'всё или ничего'.",
+      "trigger": {
+        "type": "pattern",
+        "condition": "tasks_not_done_perfectionism",
+        "threshold": 3
+      },
+      "effects": {
+        "penalty": -5,
+        "blocks": ["simplify_option", "80_percent_option"],
+        "fog_increase": 30,
+        "districts_affected": ["citadel"]
+      },
+      "defeat_strategy": "Complete tasks at 'good enough' level",
+      "defeat_conditions": [
+        {"type": "series", "action": "done_good_enough", "count": 3},
+        {"type": "card_activation", "card_id": "contract_deadline_boundary"},
+        {"type": "companion_dialogue", "companion": "smith"}
+      ],
+      "dialogue": {
+        "appearance": "100% или провал. Третьего не дано.",
+        "defeat": "Счётовод исчез. Достаточно хорошо — это и есть хорошо."
+      },
+      "image": "boss_accountant.jpg"
+    },
+    {
+      "boss_id": "collector_anxiety",
+      "name": "Коллектор Тревоги",
+      "act": 3,
+      "district": "arsenal",
+      "description": "Питается неопределённостью. Слабеет от конкретных цифр.",
+      "trigger": {
+        "type": "pattern",
+        "condition": "sessions_without_numbers",
+        "threshold": 3
+      },
+      "effects": {
+        "penalty": -4,
+        "anxiety_multiplier": 1.5,
+        "blocks_rational_replies": true,
+        "districts_affected": ["arsenal", "citadel"]
+      },
+      "defeat_strategy": "Name concrete numbers, create financial clarity",
+      "defeat_conditions": [
+        {"type": "concrete_numbers", "count": 3},
+        {"type": "contract_completion", "contract": "contract_clear_number"},
+        {"type": "full_inventory", "category": "financial"}
+      ],
+      "dialogue": {
+        "appearance": "Ты не знаешь... Ты не уверен... Всё может рухнуть...",
+        "defeat": "Цифры развеяли туман. Коллектор растворился в ясности."
+      },
+      "image": "boss_collector.jpg"
+    },
+    {
+      "boss_id": "commentator_comparison",
+      "name": "Комментатор Сравнения",
+      "act": 4,
+      "district": "forum",
+      "description": "Подкидывает сценарии 'я хуже/они лучше'. Блокирует радость от своих достижений.",
+      "trigger": {
+        "type": "thought_pattern",
+        "pattern": "comparison",
+        "threshold": 3
+      },
+      "effects": {
+        "penalty": -3,
+        "blocks_positive_achievements": true,
+        "hazard": "comparison",
+        "districts_affected": ["forum", "garden"]
+      },
+      "defeat_strategy": "Compare with yourself, not others",
+      "defeat_conditions": [
+        {"type": "skill_activation", "skill": "compare_with_self"},
+        {"type": "companion_session", "companion": "line_cartographer"},
+        {"type": "reflection_complete", "theme": "own_uniqueness"}
+      ],
+      "dialogue": {
+        "appearance": "Смотри, как у них хорошо. А у тебя... недостаточно.",
+        "defeat": "Комментатор затих. Твой путь — твой. Сравнение бессмысленно."
+      },
+      "image": "boss_commentator.jpg"
+    },
+    {
+      "boss_id": "archivist_noise",
+      "name": "Архивариус Шума",
+      "act": 5,
+      "district": "all",
+      "description": "Финальный босс. Комбинирует все Hazard. Не побеждается — переживается.",
+      "trigger": {
+        "type": "milestone",
+        "condition": "all_districts_level_3_plus",
+        "acts_completed": 4
+      },
+      "effects": {
+        "penalty": -5,
+        "all_districts_fog": true,
+        "combines_hazards": ["ping_whisper", "burnout", "comparison", "anxiety"],
+        "blocks_most_cards": true
+      },
+      "defeat_strategy": "Endure with System of 3 (anchor + connection + place)",
+      "defeat_conditions": [
+        {
+          "type": "endurance",
+          "sessions_with_system": 3,
+          "system": ["anchor_habit", "regular_connection", "safe_place"]
+        },
+        {
+          "type": "card_legendary",
+          "card": "relic_legendary_quiet_infrastructure"
+        },
+        {
+          "type": "philosophical_acceptance",
+          "understanding": "Шум не исчезает, но инфраструктура держит"
+        }
+      ],
+      "dialogue": {
+        "appearance": "Ты не можешь меня победить. Я — хаос мира. Я вечен.",
+        "aira_response": "Не нужно побеждать. Нужно построить то, что шум переживает.",
+        "victory": "Шум не ушёл. Но ты теперь устойчив. Это и есть победа.",
+        "unlocks": "guru_mode"
+      },
+      "finale": true,
+      "image": "boss_archivist.jpg"
+    }
+  ]
+}
+

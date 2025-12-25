@@ -1,0 +1,110 @@
+{
+  "district": "garden",
+  "name": "Сад",
+  "theme": "personal",
+  "philosophy": "Тихая инфраструктура вместо рывков",
+  "levels": [
+    {
+      "level_id": "garden_1",
+      "name": "Что питает?",
+      "sessions_required": [1, 3],
+      "binary_tree_id": "garden_what_feeds",
+      "task": {
+        "type": "reflection",
+        "prompt": "Напиши 2 абзаца: 'Что даёт мне энергию?' Не обязательно продуктивное.",
+        "min_words": 50,
+        "guidance": "Может быть игра, танец, рисование, чтение... Просто то, от чего чувствуешь 'да, это моё'."
+      },
+      "rewards": {
+        "stability_points": 5,
+        "effort": 1,
+        "cards": ["skill_two_paragraphs"],
+        "lore_chance": 0.1
+      }
+    },
+    {
+      "level_id": "garden_2",
+      "name": "Микропривычки",
+      "sessions_required": [4, 8],
+      "binary_tree_id": "garden_micro_habits",
+      "task": {
+        "type": "habit_creation",
+        "prompt": "Выбери привычку 2 минуты. Привяжи к существующему действию.",
+        "template": "После [X] я делаю [новое]",
+        "example": "После утреннего кофе я пишу 1 предложение в дневник",
+        "duration": 120
+      },
+      "rewards": {
+        "stability_points": 7,
+        "effort": 2,
+        "cards": ["relic_anchor_ritual"],
+        "unlocks": ["streak_tracking"]
+      }
+    },
+    {
+      "level_id": "garden_3",
+      "name": "Обучение vs перформанс",
+      "sessions_required": [9, 13],
+      "binary_tree_id": "garden_learning_performance",
+      "task": {
+        "type": "experiment",
+        "prompt": "Выбери что-то новое (не важное). Сделай ПЛОХО. Нарочно. Цель: опыт, не результат.",
+        "examples": ["Нарисуй кривой круг", "Напиши абзац коряво", "Станцуй неловко"],
+        "reflection": "Что случилось? Мир рухнул?"
+      },
+      "rewards": {
+        "stability_points": 10,
+        "effort": 2,
+        "cards": ["contract_novice_path"]
+      }
+    },
+    {
+      "level_id": "garden_4",
+      "name": "Система устойчивости",
+      "sessions_required": [14, 999],
+      "binary_tree_id": "garden_resilience_system",
+      "task": {
+        "type": "system_of_three",
+        "prompt": "Построй 'Систему 3':",
+        "fields": [
+          {"name": "anchor", "label": "Якорь: одна привычка (каждый день)"},
+          {"name": "connection", "label": "Связь: один человек (регулярный контакт)"},
+          {"name": "place", "label": "Опора: одно место/ритуал (где возвращаешься к себе)"}
+        ]
+      },
+      "rewards": {
+        "stability_points": 15,
+        "effort": 3,
+        "cards": ["relic_legendary_quiet_infrastructure"],
+        "unlocks": ["act_v_finale"]
+      }
+    }
+  ],
+  "boss": {
+    "boss_id": "archivist_noise",
+    "name": "Архивариус Шума",
+    "trigger": {
+      "type": "milestone",
+      "condition": "all_districts_completed",
+      "act": 5
+    },
+    "effects": {
+      "penalty": -5,
+      "all_districts_fog": true,
+      "combines_all_hazards": true,
+      "blocks_most_cards": true
+    },
+    "defeat_conditions": [
+      {"type": "series_with_system", "actions": ["anchor", "connection", "place"], "count": 3},
+      {"type": "card", "card_id": "relic_legendary_quiet_infrastructure"},
+      {"type": "endure", "sessions": 3, "description": "Не победить, а пережить"}
+    ],
+    "finale": true,
+    "dialogue": {
+      "archivist": "Ты не можешь меня победить. Я — хаос мира. Я вечен.",
+      "aira": "Не нужно побеждать. Нужно построить то, что шум переживает.",
+      "victory": "Шум не ушёл. Но ты теперь устойчив. Это и есть победа."
+    }
+  }
+}
+

@@ -1,0 +1,114 @@
+{
+  "district": "citadel",
+  "name": "Цитадель",
+  "theme": "work",
+  "philosophy": "Достаточно хорошо лучше, чем идеально никогда",
+  "levels": [
+    {
+      "level_id": "citadel_1",
+      "name": "Объём vs Качество",
+      "sessions_required": [1, 3],
+      "binary_tree_id": "citadel_volume_quality",
+      "task": {
+        "type": "choice",
+        "prompt": "Выбери 1 задачу на сегодня и упрости её: убери 20% требований или сократи объём",
+        "placeholder": "Например: 'Не презентация на 20 слайдов, а тезисы на 1 страницу'",
+        "validation": "min_length:10"
+      },
+      "rewards": {
+        "stability_points": 5,
+        "effort": 1,
+        "cards": ["skill_coffee_support"],
+        "fog_reduction": 20
+      }
+    },
+    {
+      "level_id": "citadel_2",
+      "name": "Граница 'достаточно'",
+      "sessions_required": [4, 7],
+      "binary_tree_id": "citadel_80_percent",
+      "task": {
+        "type": "reflection",
+        "prompt": "Опиши задачу, которую сдашь на 80% вместо 100%. Что произойдёт?",
+        "min_words": 30,
+        "timer": 120
+      },
+      "rewards": {
+        "stability_points": 8,
+        "effort": 2,
+        "cards": ["relic_lens_focus"],
+        "unlock": "path_choice"
+      }
+    },
+    {
+      "level_id": "citadel_3",
+      "name": "Планирование волнами",
+      "sessions_required": [8, 12],
+      "fork": true,
+      "paths": [
+        {
+          "path_id": "smith_boundaries",
+          "name": "Путь Кузнеца Границ",
+          "description": "Учишься резать лишнее и говорить 'нет'",
+          "task": {
+            "type": "checklist",
+            "prompt": "Назови 3 вещи, которые делаешь 'потому что надо'. Выбери 1 для отказа.",
+            "items": 3
+          },
+          "reward_card": "companion_smith"
+        },
+        {
+          "path_id": "architect_rhythm",
+          "name": "Путь Архитектора Ритма",
+          "description": "Учишься планировать волнами с пиками и спадами",
+          "task": {
+            "type": "weekly_plan",
+            "prompt": "Построй недельный ритм: где пик, где спад, где пауза?",
+            "template": ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+          },
+          "reward_card": "companion_architect"
+        }
+      ],
+      "rewards": {
+        "stability_points": 12,
+        "effort": 3,
+        "cards": ["contract_deadline_boundary"]
+      }
+    },
+    {
+      "level_id": "citadel_4",
+      "name": "Делегирование и 'нет'",
+      "sessions_required": [13, 999],
+      "binary_tree_id": "citadel_delegation",
+      "task": {
+        "type": "delegation",
+        "prompt": "Найди 1 задачу для делегирования/отказа. Кому попросишь? Или как скажешь 'нет'?",
+        "options": ["Делегировать", "Отказаться", "Упростить"]
+      },
+      "rewards": {
+        "stability_points": 15,
+        "effort": 3,
+        "skill_unlocked": "soft_no"
+      }
+    }
+  ],
+  "boss": {
+    "boss_id": "accountant_deadlines",
+    "name": "Счётовод Дедлайнов",
+    "trigger": {
+      "type": "pattern",
+      "condition": "tasks_not_done_perfectionism",
+      "threshold": 3
+    },
+    "effects": {
+      "penalty": -5,
+      "blocks": ["simplify", "80_percent"],
+      "fog_increase": 30
+    },
+    "defeat_conditions": [
+      {"type": "series", "action": "done_good_enough", "count": 3},
+      {"type": "card", "card_id": "contract_deadline_boundary"}
+    ]
+  }
+}
+

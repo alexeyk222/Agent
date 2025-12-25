@@ -1,0 +1,120 @@
+{
+  "district": "forum",
+  "name": "Форум",
+  "theme": "relationships",
+  "philosophy": "Связь важнее правоты",
+  "unlock_requirement": {
+    "stability_points": 50
+  },
+  "levels": [
+    {
+      "level_id": "forum_1",
+      "name": "Инвентарь связей",
+      "sessions_required": [1, 3],
+      "binary_tree_id": "forum_connection_inventory",
+      "task": {
+        "type": "people_list",
+        "prompt": "Назови 3 человек, с которыми ты чувствуешь себя собой. Когда видел каждого последний раз?",
+        "fields": [
+          {"name": "person1", "last_contact": "date"},
+          {"name": "person2", "last_contact": "date"},
+          {"name": "person3", "last_contact": "date"}
+        ],
+        "action": "Если >1 месяц — напиши одному прямо сейчас"
+      },
+      "rewards": {
+        "stability_points": 5,
+        "effort": 1,
+        "cards": ["skill_connection_anchor"],
+        "fog_reduction": 20
+      }
+    },
+    {
+      "level_id": "forum_2",
+      "name": "Мягкие границы",
+      "sessions_required": [4, 7],
+      "binary_tree_id": "forum_soft_boundaries",
+      "task": {
+        "type": "honest_phrase",
+        "prompt": "Вспомни ситуацию, где сказал 'да' вместо 'нет'. Напиши честную фразу: 'Мне сейчас трудно...'",
+        "template": "Мне сейчас трудно...",
+        "min_words": 10
+      },
+      "rewards": {
+        "stability_points": 8,
+        "effort": 2,
+        "cards": ["relic_boundary_compass"],
+        "new_replies": ["soft_boundary", "honest_no"]
+      }
+    },
+    {
+      "level_id": "forum_3",
+      "name": "Запрос и предложение",
+      "sessions_required": [8, 11],
+      "binary_tree_id": "forum_ask_give",
+      "task": {
+        "type": "action_commitment",
+        "prompt": "Выбери близкого человека. Попроси что-то маленькое (совет, 5 минут, одолжить вещь). Без извинений.",
+        "validation": "person_name + request",
+        "example": "'Маша, можешь помочь с выбором?' — достаточно."
+      },
+      "rewards": {
+        "stability_points": 10,
+        "effort": 2,
+        "cards": ["contract_reciprocity_bridge"]
+      }
+    },
+    {
+      "level_id": "forum_4",
+      "name": "Ремонт разрывов",
+      "sessions_required": [12, 999],
+      "binary_tree_id": "forum_repair_breaks",
+      "fork": true,
+      "paths": [
+        {
+          "path_id": "restore",
+          "name": "Восстановить связь",
+          "task": {
+            "type": "letter",
+            "prompt": "Напиши сообщение (не отправляй пока). Формула: 'Я помню [хорошее]. Мне жаль [конфликт]. Хочу [что хочешь].'",
+            "template": true
+          }
+        },
+        {
+          "path_id": "let_go",
+          "name": "Отпустить",
+          "task": {
+            "type": "ritual",
+            "prompt": "Напиши письмо (не отправляй). Скажи всё, что не сказал. Ритуал: сожги/порви/закопай.",
+            "ritual_type": "closure"
+          }
+        }
+      ],
+      "rewards": {
+        "stability_points": 15,
+        "effort": 3,
+        "cards": ["companion_line_cartographer"]
+      }
+    }
+  ],
+  "boss": {
+    "boss_id": "commentator_comparison",
+    "name": "Комментатор Сравнения",
+    "trigger": {
+      "type": "pattern",
+      "condition": "comparison_thoughts",
+      "threshold": 3
+    },
+    "effects": {
+      "penalty": -3,
+      "blocks_positive_achievements": true,
+      "districts_affected": ["forum", "garden"]
+    },
+    "defeat_conditions": [
+      {"type": "skill", "skill_id": "compare_with_self"},
+      {"type": "session", "with_companion": "line_cartographer"},
+      {"type": "reflection", "prompt": "Что у меня есть своё?"}
+    ]
+  }
+}
+

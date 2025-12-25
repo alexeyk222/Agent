@@ -1,0 +1,54 @@
+{
+  "player_id": "default",
+  "created_at": "2025-12-25T10:31:35.437335",
+  "stability_points": 0,
+  "districts": {
+    "oasis": {
+      "level": 0,
+      "unlocked": true,
+      "name": "Оазис",
+      "theme": "health"
+    },
+    "forum": {
+      "level": 0,
+      "unlocked": false,
+      "name": "Форум",
+      "theme": "relationships"
+    },
+    "citadel": {
+      "level": 0,
+      "unlocked": true,
+      "name": "Цитадель",
+      "theme": "work"
+    },
+    "arsenal": {
+      "level": 0,
+      "unlocked": true,
+      "name": "Арсенал",
+      "theme": "finance"
+    },
+    "garden": {
+      "level": 0,
+      "unlocked": true,
+      "name": "Сад",
+      "theme": "personal"
+    }
+  },
+  "session_history": [],
+  "agent_memory": [],
+  "rituals": [],
+  "goals": [],
+  "last_session_time": "2025-12-25T11:55:17.343368",
+  "achievements": [],
+  "last_save": "2025-12-25T11:55:17.343373",
+  "effort": 0,
+  "session_streak": 0,
+  "owned_cards": [],
+  "equipped_card": null,
+  "completed_levels": [],
+  "active_bosses": [],
+  "actions_history": {},
+  "district_sessions": {},
+  "acts_completed": 0,
+  "guru_mode_unlocked": false
+}

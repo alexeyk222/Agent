@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InnerQuest: Город Сфер</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Загрузочный экран -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-content">
+            <h1 class="game-title">InnerQuest</h1>
+            <h2 class="game-subtitle">Город Сфер</h2>
+            <div class="loading-animation">
+                <div class="city-silhouette"></div>
+                <div class="fog-layer"></div>
+            </div>
+            <p class="loading-text">Загрузка города...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Карта города -->
+    <div id="city-map" class="screen">
+        <div class="city-container">
+            <h1 class="city-title">Город Сфер</h1>
+            <div class="city-grid">
+                <!-- Оазис (Здоровье) -->
+                <div class="district" data-district="oasis" data-theme="health">
+                    <div class="district-icon">🌿</div>
+                    <div class="district-name">Оазис</div>
+                    <div class="district-level">Уровень <span class="level-value">0</span></div>
+                    <div class="district-status locked">Заблокирован</div>
+                </div>
+
+                <!-- Форум (Отношения) -->
+                <div class="district" data-district="forum" data-theme="relationships">
+                    <div class="district-icon">🤝</div>
+                    <div class="district-name">Форум</div>
+                    <div class="district-level">Уровень <span class="level-value">0</span></div>
+                    <div class="district-status locked">Заблокирован</div>
+                </div>
+
+                <!-- Цитадель (Работа) -->
+                <div class="district" data-district="citadel" data-theme="work">
+                    <div class="district-icon">🏛️</div>
+                    <div class="district-name">Цитадель</div>
+                    <div class="district-level">Уровень <span class="level-value">0</span></div>
+                    <div class="district-status">Доступен</div>
+                </div>
+
+                <!-- Арсенал (Финансы) -->
+                <div class="district" data-district="arsenal" data-theme="finance">
+                    <div class="district-icon">⚔️</div>
+                    <div class="district-name">Арсенал</div>
+                    <div class="district-level">Уровень <span class="level-value">0</span></div>
+                    <div class="district-status">Доступен</div>
+                </div>
+
+                <!-- Сад (Личное развитие) -->
+                <div class="district" data-district="garden" data-theme="personal">
+                    <div class="district-icon">🌱</div>
+                    <div class="district-name">Сад</div>
+                    <div class="district-level">Уровень <span class="level-value">0</span></div>
+                    <div class="district-status">Доступен</div>
+                </div>
+            </div>
+
+            <div class="city-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Очки устойчивости:</span>
+                    <span class="stat-value" id="stability-points">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Последняя сессия:</span>
+                    <span class="stat-value" id="last-session">Никогда</span>
+                </div>
+            </div>
+
+            <div class="city-actions">
+                <button class="btn btn-primary" id="start-session-btn">Начать сессию</button>
+                <button class="btn btn-secondary" id="open-diary-btn">Дневник</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран выбора эмоции -->
+    <div id="emotion-select" class="screen">
+        <div class="emotion-container">
+            <h2>Выбери эмоцию</h2>
+            <p class="emotion-subtitle">Как ты себя чувствуешь в этом квартале?</p>
+            
+            <div class="emotion-list">
+                <div class="emotion-item" data-emotion="Тревога">
+                    <span class="emotion-icon">😰</span>
+                    <span class="emotion-name">Тревога</span>
+                </div>
+                <div class="emotion-item" data-emotion="Выгорание">
+                    <span class="emotion-icon">😓</span>
+                    <span class="emotion-name">Выгорание</span>
+                </div>
+                <div class="emotion-item" data-emotion="Апатия">
+                    <span class="emotion-icon">😑</span>
+                    <span class="emotion-name">Апатия</span>
+                </div>
+                <div class="emotion-item" data-emotion="Азарт">
+                    <span class="emotion-icon">😊</span>
+                    <span class="emotion-name">Азарт</span>
+                </div>
+                <div class="emotion-item" data-emotion="Спокойствие">
+                    <span class="emotion-icon">😌</span>
+                    <span class="emotion-name">Спокойствие</span>
+                </div>
+                <div class="emotion-item" data-emotion="Радость">
+                    <span class="emotion-icon">😄</span>
+                    <span class="emotion-name">Радость</span>
+                </div>
+            </div>
+
+            <div class="intensity-selector">
+                <label>Интенсивность (1-10):</label>
+                <input type="range" id="intensity-slider" min="1" max="10" value="5">
+                <span id="intensity-value">5</span>
+            </div>
+
+            <div class="emotion-actions">
+                <button class="btn btn-secondary" id="back-to-city-btn">Назад</button>
+                <button class="btn btn-primary" id="confirm-emotion-btn" disabled>Продолжить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог с агентом -->
+    <div id="agent-dialog" class="screen">
+        <div class="dialog-layout">
+            <!-- Левая панель: Айра, приветствие, правила, концепт -->
+            <aside class="agent-side">
+                <div class="agent-photo-wrap">
+                    <div class="agent-photo" role="img" aria-label="Айра">
+                        <div class="agent-photo-overlay"></div>
+                    </div>
+                    <div class="agent-name large">Айра — Навигатор сигнала</div>
+                </div>
+                <div class="agent-greeting-card">
+                    <h3>Привет!</h3>
+                    <p>Я помогу разогнать туман, найти опоры и связать кварталы твоего Города Сфер.</p>
+                </div>
+                <div class="agent-rules-card">
+                    <h4>Как играть</h4>
+                    <ul>
+                        <li>Выбери квартал и эмоцию, опиши микрошаг — получай Effort.</li>
+                        <li>Открывай карты (Skill/Relic/Contract/Lore/Companion/Hazard) рядом с чатом.</li>
+                        <li>Разыгрывай активную карту drag&drop в чат, собирай Кодекс.</li>
+                        <li>Проходи акты I–V, встречай боссов Шепота, Счётовода, Коллектора, Комментатора и Архивариуса.</li>
+                    </ul>
+                </div>
+                <div class="agent-concept-card">
+                    <h4>Концепция</h4>
+                    <p>Город Сфер — это твоя внутренняя инфраструктура. Айра — навигатор, который помогает соединить сигналы, удержать баланс кварталов и превратить шум в понятные узоры.</p>
+                </div>
+            </aside>
+
+            <!-- Правая панель: чат -->
+            <div class="dialog-container">
+                <div class="agent-avatar">
+                    <div class="avatar-glow"></div>
+                    <div class="avatar-silhouette">A</div>
+                </div>
+                <div class="agent-name">Айра</div>
+                
+                <div class="dialog-messages" id="dialog-messages">
+                    <!-- Сообщения будут добавляться динамически -->
+                </div>
+
+                <div class="dialog-input-container">
+                    <textarea 
+                        id="dialog-input" 
+                        placeholder="Напиши Айре..."
+                        rows="3"
+                    ></textarea>
+                    <button class="btn btn-primary" id="send-message-btn">Отправить</button>
+                </div>
+
+                <div class="dialog-actions">
+                    <button class="btn btn-secondary" id="skip-dialog-btn">Пропустить диалог</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мини-игра: Перетаскивание сферы -->
+    <div id="sphere-minigame" class="screen">
+        <div class="minigame-container">
+            <h2>Найди опору</h2>
+            <p class="minigame-instruction">
+                Вспомни одно действие, которое сегодня принесло тебе комфорт.
+                Введи его ниже, и оно превратится в сферу.
+            </p>
+            
+            <div class="sphere-input-container">
+                <input type="text" id="sphere-input" placeholder="Например: выпил вкусный кофе в тишине">
+                <button class="btn btn-primary" id="create-sphere-btn">Создать сферу</button>
+            </div>
+
+            <div class="sphere-game-area">
+                <div class="sphere-source" id="sphere-source"></div>
+                <div class="sphere-target" id="sphere-target">
+                    <div class="target-label">Перетащи сферу сюда</div>
+                </div>
+            </div>
+
+            <div class="minigame-actions">
+                <button class="btn btn-secondary" id="skip-sphere-btn">Пропустить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мини-игра: Дыхание -->
+    <div id="breathing-minigame" class="screen">
+        <div class="minigame-container">
+            <h2>Дыхание устойчивости</h2>
+            <p class="minigame-instruction">
+                Дыши в такт с расширением узора.
+                Вдох (4 сек) → Задержка (4 сек) → Выдох (4 сек)
+            </p>
+            
+            <div class="breathing-circle-container">
+                <div class="breathing-circle" id="breathing-circle">
+                    <div class="breathing-pattern"></div>
+                </div>
+                <div class="breathing-instruction" id="breathing-instruction">Вдох</div>
+            </div>
+
+            <div class="breathing-timer">
+                <div class="timer-bar" id="timer-bar"></div>
+            </div>
+
+            <div class="breathing-counter">
+                Циклов: <span id="breathing-count">0</span> / 3
+            </div>
+
+            <div class="minigame-actions">
+                <button class="btn btn-secondary" id="skip-breathing-btn">Пропустить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран результатов -->
+    <div id="results-screen" class="screen">
+        <div class="results-container">
+            <h2>Сессия завершена</h2>
+            
+            <div class="results-stats">
+                <div class="result-item">
+                    <div class="result-icon">✨</div>
+                    <div class="result-label">Очки получено</div>
+                    <div class="result-value" id="points-earned">+15</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-icon">🏆</div>
+                    <div class="result-label">Всего очков</div>
+                    <div class="result-value" id="total-points">15</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-icon">📈</div>
+                    <div class="result-label">Уровень квартала</div>
+                    <div class="result-value" id="district-level">1</div>
+                </div>
+            </div>
+
+            <div class="results-message" id="results-message">
+                Отличная работа! Ты сделал важный шаг.
+            </div>
+
+            <div class="results-actions">
+                <button class="btn btn-primary" id="back-to-city-from-results">Вернуться в город</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Дневник -->
+    <div id="diary-screen" class="screen">
+        <div class="diary-container">
+            <h2>Дневник</h2>
+            
+            <div class="diary-tabs">
+                <button class="tab-btn active" data-tab="history">История сессий</button>
+                <button class="tab-btn" data-tab="memory">Память Агента</button>
+                <button class="tab-btn" data-tab="achievements">Достижения</button>
+            </div>
+
+            <div class="diary-content">
+                <div class="tab-content active" id="tab-history">
+                    <div id="session-history-list"></div>
+                </div>
+                <div class="tab-content" id="tab-memory">
+                    <div id="agent-memory-list"></div>
+                </div>
+                <div class="tab-content" id="tab-achievements">
+                    <div id="achievements-list"></div>
+                </div>
+            </div>
+
+            <div class="diary-actions">
+                <button class="btn btn-secondary" id="close-diary-btn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кризисный экран -->
+    <div id="crisis-screen" class="screen">
+        <div class="crisis-container">
+            <h2>Важная информация</h2>
+            <div class="crisis-message" id="crisis-message"></div>
+            <div class="helplines-list" id="helplines-list"></div>
+            <div class="crisis-actions">
+                <button class="btn btn-primary" id="crisis-understood-btn">Понятно</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Rail (рейка карточек) -->
+    <div id="card-rail"></div>
+
+    <!-- Экран бинарных вопросов -->
+    <div id="questions-screen" class="screen">
+        <div id="question-container"></div>
+    </div>
+
+    <!-- Экран интерактивных заданий -->
+    <div id="task-screen" class="screen">
+        <div id="task-container"></div>
+    </div>
+
+    <!-- Экран босса -->
+    <div id="boss-encounter" class="screen">
+        <div id="boss-container"></div>
+    </div>
+
+    <!-- Экран ГУРУ-режима -->
+    <div id="guru-mode" class="screen">
+        <div id="guru-container"></div>
+    </div>
+
+    <!-- Подключение CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/questions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tasks.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bosses.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/guru.css') }}">
+
+    <!-- Подключение JavaScript -->
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/city.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/minigames.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/agent.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/easter-eggs.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/questions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bosses.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/guru.js') }}"></script>
+</body>
+</html>
+

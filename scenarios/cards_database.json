@@ -1,0 +1,243 @@
+{
+  "cards": [
+    {
+      "card_id": "skill_coffee_support",
+      "name": "Кофейная опора",
+      "type": "skill",
+      "rarity": "common",
+      "district": "citadel",
+      "effect": {
+        "stability_points": 5,
+        "fog_reduction": {"district": "citadel", "amount": 1}
+      },
+      "unlock_condition": {
+        "type": "action",
+        "action": "reframing_input",
+        "count": 1
+      },
+      "effort_cost": 1,
+      "duration": 60,
+      "description": "Найди маленькую опору в работе. +5 устойчивости, снимает 1 туман.",
+      "activation": "instant"
+    },
+    {
+      "card_id": "relic_lens_focus",
+      "name": "Линза Фокуса",
+      "type": "relic",
+      "rarity": "rare",
+      "district": "citadel",
+      "effect": {
+        "passive": "first_microstep_bonus",
+        "bonus": 2,
+        "cap": "once_per_session"
+      },
+      "unlock_condition": {
+        "type": "sessions_in_district",
+        "district": "citadel",
+        "count": 3
+      },
+      "effort_cost": 3,
+      "duration_sessions": 3,
+      "description": "Первый микрошаг в сессии даёт +2 устойчивости (1 раз/сессию)."
+    },
+    {
+      "card_id": "contract_deadline_boundary",
+      "name": "Граница дедлайна",
+      "type": "contract",
+      "rarity": "epic",
+      "district": "citadel",
+      "condition": {
+        "type": "choice_pattern",
+        "choice": "reduce_scope",
+        "count": 2
+      },
+      "reward": {
+        "card": "companion_smith"
+      },
+      "effort_cost": 6,
+      "deadline_sessions": 10,
+      "description": "Завершить сессию 2 раза, выбрав 'сократить объём'. Награда: Кузнец Границ."
+    },
+    {
+      "card_id": "skill_breath_anchor",
+      "name": "Якорь дыхания",
+      "type": "skill",
+      "rarity": "common",
+      "district": "oasis",
+      "effect": {
+        "stability_points": 4,
+        "stress_reduction": 15
+      },
+      "unlock_condition": {
+        "type": "complete_level",
+        "level": "oasis_1"
+      },
+      "effort_cost": 1,
+      "duration": 30,
+      "description": "5 глубоких вдохов. +4 устойчивости, снижает стресс.",
+      "activation": "guided"
+    },
+    {
+      "card_id": "relic_energy_barometer",
+      "name": "Барометр энергии",
+      "type": "relic",
+      "rarity": "common",
+      "district": "oasis",
+      "effect": {
+        "passive": "early_warning",
+        "shows_fatigue_level": true
+      },
+      "unlock_condition": {
+        "type": "complete_level",
+        "level": "oasis_2"
+      },
+      "effort_cost": 2,
+      "duration_sessions": 5,
+      "description": "Пассивно показывает уровень усталости. Раннее предупреждение."
+    },
+    {
+      "card_id": "skill_water_slowly",
+      "name": "Стакан воды без спешки",
+      "type": "skill",
+      "rarity": "common",
+      "district": "oasis",
+      "effect": {
+        "stability_points": 3,
+        "hazard_prevention": {"hazard": "focus_breakdown", "reduction": 0.3}
+      },
+      "unlock_condition": {
+        "type": "microstep",
+        "category": "self_care",
+        "count": 2
+      },
+      "effort_cost": 1,
+      "duration": 180,
+      "description": "+3 устойчивости, снижает шанс 'Срыва фокуса' в следующей сессии."
+    },
+    {
+      "card_id": "companion_line_cartographer",
+      "name": "Картограф Линий",
+      "type": "companion",
+      "rarity": "epic",
+      "district": "forum",
+      "effect": {
+        "new_replies": ["soft_boundary", "clarifying_question"],
+        "passive_bonus": 1
+      },
+      "unlock_condition": {
+        "type": "combined",
+        "conditions": [
+          {"type": "stability_points", "amount": 50},
+          {"type": "sessions_in_district", "district": "forum", "count": 1}
+        ]
+      },
+      "effort_cost": 8,
+      "duration_sessions": 5,
+      "description": "Открывает реплики 'мягкая граница' и 'уточняющий вопрос'. +1 к связям."
+    },
+    {
+      "card_id": "companion_smith",
+      "name": "Кузнец Границ",
+      "type": "companion",
+      "rarity": "epic",
+      "district": "citadel",
+      "effect": {
+        "contract_cost_reduction": 1,
+        "new_replies": ["cut_excess", "soft_no"]
+      },
+      "unlock_condition": {
+        "type": "contract_completion",
+        "contract": "contract_deadline_boundary"
+      },
+      "effort_cost": 7,
+      "duration_sessions": 5,
+      "description": "Снижает стоимость Contract на 1 Effort. Учит говорить 'нет' с заботой."
+    },
+    {
+      "card_id": "skill_two_paragraphs",
+      "name": "Два абзаца в дневник",
+      "type": "skill",
+      "rarity": "common",
+      "district": "garden",
+      "effect": {
+        "stability_points": 5,
+        "lore_unlock_chance": 0.1
+      },
+      "unlock_condition": {
+        "type": "complete_level",
+        "level": "garden_1"
+      },
+      "effort_cost": 1,
+      "duration": 300,
+      "description": "+5 устойчивости, открывает 1 случайную Lore из актов."
+    },
+    {
+      "card_id": "relic_legendary_quiet_infrastructure",
+      "name": "Тихая инфраструктура",
+      "type": "relic",
+      "rarity": "legendary",
+      "district": "garden",
+      "effect": {
+        "passive": "hazard_to_lore",
+        "frequency": "once_per_week"
+      },
+      "unlock_condition": {
+        "type": "act_completion",
+        "act": 5
+      },
+      "effort_cost": 15,
+      "description": "1 раз в неделю превращает один Hazard в Lore. Финальная карта."
+    },
+    {
+      "card_id": "hazard_burnout",
+      "name": "Перегрев",
+      "type": "hazard",
+      "rarity": "common",
+      "effect": {
+        "penalty": -2,
+        "persists_until": "oasis_skill_used"
+      },
+      "trigger": {
+        "type": "pattern",
+        "condition": "no_rest",
+        "threshold": 3
+      },
+      "description": "-2 к наградам, пока не сыгран навык Оазиса."
+    },
+    {
+      "card_id": "hazard_comparison",
+      "name": "Сравнение",
+      "type": "hazard",
+      "rarity": "rare",
+      "district": "forum",
+      "effect": {
+        "blocks_positive_replies": true,
+        "penalty": -2
+      },
+      "trigger": {
+        "type": "thought_pattern",
+        "pattern": "comparison",
+        "threshold": 3
+      },
+      "removal": {
+        "skill": "compare_with_self"
+      },
+      "description": "Блокирует позитивные реплики. Снимается навыком 'сверка с собой'."
+    }
+  ],
+  "card_types": {
+    "skill": {"activation": "instant", "duration_type": "seconds"},
+    "relic": {"activation": "passive", "duration_type": "sessions"},
+    "contract": {"activation": "quest", "duration_type": "sessions_or_deadline"},
+    "lore": {"activation": "codex", "duration_type": "permanent"},
+    "companion": {"activation": "passive", "duration_type": "sessions"},
+    "hazard": {"activation": "automatic", "duration_type": "until_removed"}
+  },
+  "rarity_costs": {
+    "common": [1, 2],
+    "rare": [3, 4],
+    "epic": [6, 8],
+    "legendary": [10, 15]
+  }
+}
+

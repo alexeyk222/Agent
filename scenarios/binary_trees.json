@@ -1,0 +1,249 @@
+{
+  "trees": {
+    "citadel_volume_quality": {
+      "tree_id": "citadel_volume_quality",
+      "district": "citadel",
+      "root": {
+        "node_id": "root",
+        "text": "Работа давит. Но как именно? Ты делаешь СЛИШКОМ МНОГО или СЛИШКОМ ИДЕАЛЬНО?",
+        "type": "choice",
+        "options": [
+          {"text": "Слишком много", "next": "too_much"},
+          {"text": "Слишком идеально", "next": "too_perfect"},
+          {"text": "Оба разом", "next": "both"}
+        ]
+      },
+      "nodes": {
+        "too_much": {
+          "node_id": "too_much",
+          "text": "Что можно убрать? Не 'сделать быстрее' — именно УБРАТЬ?",
+          "type": "choice",
+          "options": [
+            {"text": "Не знаю", "next": "list_all"},
+            {"text": "Знаю", "next": "name_one"}
+          ]
+        },
+        "too_perfect": {
+          "node_id": "too_perfect",
+          "text": "На скольки процентах качества ты обычно останавливаешься?",
+          "type": "scale",
+          "min": 0,
+          "max": 100,
+          "next": "quality_followup"
+        },
+        "both": {
+          "node_id": "both",
+          "text": "Классика. Много + идеально = выгорание. Выбери: режем объём ИЛИ снижаем планку?",
+          "type": "choice",
+          "options": [
+            {"text": "Режем объём", "next": "too_much"},
+            {"text": "Снижаем планку", "next": "too_perfect"}
+          ]
+        },
+        "list_all": {
+          "node_id": "list_all",
+          "text": "Тогда список. Всё, что на тебе. Вычеркни 1 самое неважное.",
+          "type": "task_trigger",
+          "task_type": "checklist"
+        },
+        "name_one": {
+          "node_id": "name_one",
+          "text": "Назови одну вещь. Конкретно. От чего откажешься?",
+          "type": "task_trigger",
+          "task_type": "text_input"
+        },
+        "quality_followup": {
+          "node_id": "quality_followup",
+          "text": "А если 80%? Что случится?",
+          "type": "reflection",
+          "leads_to": "task"
+        }
+      }
+    },
+    "oasis_body_check": {
+      "tree_id": "oasis_body_check",
+      "district": "oasis",
+      "root": {
+        "node_id": "root",
+        "text": "Как тело прямо сейчас? Оцени от 1 до 10.",
+        "type": "scale",
+        "min": 1,
+        "max": 10,
+        "branches": {
+          "1-3": "pain",
+          "4-6": "fatigue",
+          "7-10": "normal"
+        }
+      },
+      "nodes": {
+        "pain": {
+          "node_id": "pain",
+          "text": "Где болит? Голова? Спина? Живот?",
+          "type": "choice",
+          "options": [
+            {"text": "Голова", "next": "head_pain"},
+            {"text": "Спина/Шея", "next": "back_pain"},
+            {"text": "Живот/Сердце", "next": "core_pain"}
+          ]
+        },
+        "fatigue": {
+          "node_id": "fatigue",
+          "text": "Это усталость сегодняшняя или накопленная?",
+          "type": "choice",
+          "options": [
+            {"text": "Сегодняшняя", "next": "sleep_check"},
+            {"text": "Накопленная (дни/недели)", "next": "chronic_fatigue"}
+          ]
+        },
+        "normal": {
+          "node_id": "normal",
+          "text": "Это стабильно или временно?",
+          "type": "choice",
+          "options": [
+            {"text": "Стабильно", "next": "maintain"},
+            {"text": "Скачками (то хорошо, то плохо)", "next": "unstable"}
+          ]
+        },
+        "head_pain": {
+          "node_id": "head_pain",
+          "text": "Что делал последние часы? Экраны? Напряжение?",
+          "type": "task_trigger",
+          "task_type": "timer",
+          "task_text": "5 мин закрой глаза, массируй виски круговыми движениями",
+          "duration": 300
+        },
+        "sleep_check": {
+          "node_id": "sleep_check",
+          "text": "Сколько спал последнюю ночь?",
+          "type": "choice",
+          "options": [
+            {"text": "Меньше 6 часов", "next": "sleep_debt"},
+            {"text": "6-8 часов", "next": "quality_check"},
+            {"text": "Больше 8 часов", "next": "oversleep"}
+          ]
+        },
+        "chronic_fatigue": {
+          "node_id": "chronic_fatigue",
+          "text": "Когда последний раз был полноценный отдых?",
+          "type": "choice",
+          "options": [
+            {"text": "Давно (недели/месяцы)", "next": "burnout_warning"},
+            {"text": "Недавно (дни)", "next": "energy_drain"}
+          ]
+        },
+        "burnout_warning": {
+          "node_id": "burnout_warning",
+          "text": "Граница выгорания. Нужен СТОП.",
+          "type": "task_trigger",
+          "task_type": "rest_day",
+          "urgent": true
+        }
+      }
+    },
+    "arsenal_one_number": {
+      "tree_id": "arsenal_one_number",
+      "district": "arsenal",
+      "root": {
+        "node_id": "root",
+        "text": "Деньги. Назови ОДНО число. Любое: остаток / долг / цель / расход.",
+        "type": "open_or_choice",
+        "allows_input": true,
+        "fallback_options": [
+          {"text": "Не знаю / Страшно смотреть", "next": "fear_of_numbers"},
+          {"text": "Много разных чисел", "next": "too_many"}
+        ]
+      },
+      "nodes": {
+        "fear_of_numbers": {
+          "node_id": "fear_of_numbers",
+          "text": "Неопределённость страшнее правды. Цифра — это просто факт. Без оценки.",
+          "type": "task_trigger",
+          "task_type": "look_at_balance",
+          "encouragement": "Открой счёт. Посмотри 1 цифру. Закрой. Скажи мне."
+        },
+        "too_many": {
+          "node_id": "too_many",
+          "text": "Много — это туман. Выбери ОДНУ. Самую тревожную.",
+          "type": "task_trigger",
+          "task_type": "pick_most_anxious"
+        }
+      }
+    },
+    "forum_connection_inventory": {
+      "tree_id": "forum_connection_inventory",
+      "district": "forum",
+      "root": {
+        "node_id": "root",
+        "text": "С кем ты чувствуешь себя *собой*? Без маски. Без роли.",
+        "type": "open_or_choice",
+        "allows_input": true,
+        "fallback_options": [
+          {"text": "Не знаю / Никого", "next": "loneliness"},
+          {"text": "Раньше были, сейчас нет", "next": "lost_connections"}
+        ]
+      },
+      "nodes": {
+        "loneliness": {
+          "node_id": "loneliness",
+          "text": "Тогда иначе: с кем можешь поговорить о том, что тебя *правда* волнует?",
+          "type": "choice",
+          "options": [
+            {"text": "Есть такой человек", "next": "found_one"},
+            {"text": "Нет таких", "next": "build_bridges"}
+          ]
+        },
+        "lost_connections": {
+          "node_id": "lost_connections",
+          "text": "Что случилось? Переезд? Конфликт? Дистанция?",
+          "type": "choice",
+          "options": [
+            {"text": "Переезд", "next": "new_place"},
+            {"text": "Конфликт", "next": "repair"},
+            {"text": "Постепенное отдаление", "next": "drift"}
+          ]
+        },
+        "drift": {
+          "node_id": "drift",
+          "text": "С кем раньше было близко?",
+          "type": "task_trigger",
+          "task_type": "reach_out",
+          "guidance": "Напиши одному. Просто 'Привет, как дела?'"
+        }
+      }
+    },
+    "garden_what_feeds": {
+      "tree_id": "garden_what_feeds",
+      "district": "garden",
+      "root": {
+        "node_id": "root",
+        "text": "От чего ты чувствуешь 'Да, это МОЁ'? Не чужое одобрение — именно своё.",
+        "type": "open_or_choice",
+        "allows_input": true,
+        "fallback_options": [
+          {"text": "Не знаю", "next": "childhood"},
+          {"text": "Раньше знал, сейчас забыл", "next": "what_changed"}
+        ]
+      },
+      "nodes": {
+        "childhood": {
+          "node_id": "childhood",
+          "text": "Тогда с другой стороны: что ты делал в детстве просто так? Не для оценки.",
+          "type": "task_trigger",
+          "task_type": "reflection",
+          "guidance": "Вспомни 2-3 занятия. Что из этого можешь вернуть?"
+        },
+        "what_changed": {
+          "node_id": "what_changed",
+          "text": "Что изменилось? Нет времени? Стыдно? Не кажется важным?",
+          "type": "choice",
+          "options": [
+            {"text": "Нет времени", "next": "time_priority"},
+            {"text": "Стыдно", "next": "shame_block"},
+            {"text": "Не кажется важным", "next": "value_shift"}
+          ]
+        }
+      }
+    }
+  }
+}
+

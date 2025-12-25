@@ -1,0 +1,118 @@
+{
+  "district": "arsenal",
+  "name": "Арсенал",
+  "theme": "finance",
+  "philosophy": "Ясность важнее количества",
+  "levels": [
+    {
+      "level_id": "arsenal_1",
+      "name": "Одна ясная цифра",
+      "sessions_required": [1, 2],
+      "binary_tree_id": "arsenal_one_number",
+      "task": {
+        "type": "number_input",
+        "prompt": "Посмотри реальную цифру прямо сейчас: остаток на карте / долг / расход за месяц. Напиши одну цифру.",
+        "validation": "is_number",
+        "guidance": "Открой банк-приложение. Одна цифра — это опора."
+      },
+      "rewards": {
+        "stability_points": 5,
+        "effort": 1,
+        "cards": ["skill_anchor_point"],
+        "fog_reduction": 20
+      }
+    },
+    {
+      "level_id": "arsenal_2",
+      "name": "Карта ресурсов",
+      "sessions_required": [3, 6],
+      "binary_tree_id": "arsenal_resource_map",
+      "task": {
+        "type": "top_three",
+        "prompt": "Выпиши 3 самые большие статьи расходов за месяц. Выбери 1 для уменьшения на 10-20%.",
+        "items": 3,
+        "requires_choice": true
+      },
+      "rewards": {
+        "stability_points": 7,
+        "effort": 2,
+        "cards": ["relic_accounting_seal"],
+        "unlocks": ["resource_visualization"]
+      }
+    },
+    {
+      "level_id": "arsenal_3",
+      "name": "Один шаг порядка",
+      "sessions_required": [7, 10],
+      "binary_tree_id": "arsenal_control_step",
+      "task": {
+        "type": "choice",
+        "prompt": "Выбери ОДНО действие для порядка:",
+        "options": [
+          {
+            "id": "autopay",
+            "text": "Автоплатёж",
+            "followup": "На что? Настрой прямо сейчас (5 минут)"
+          },
+          {
+            "id": "saving",
+            "text": "Накопление",
+            "followup": "Сколько в месяц? Автопереводом в день зарплаты"
+          },
+          {
+            "id": "debt_payment",
+            "text": "Погашение долга",
+            "followup": "Фиксированная сумма в месяц. Какая?"
+          }
+        ]
+      },
+      "rewards": {
+        "stability_points": 10,
+        "effort": 2,
+        "cards": ["contract_clear_number"]
+      }
+    },
+    {
+      "level_id": "arsenal_4",
+      "name": "Достаточность vs жадность",
+      "sessions_required": [11, 999],
+      "binary_tree_id": "arsenal_enough",
+      "task": {
+        "type": "calculation",
+        "prompt": "Посчитай 'сумму спокойствия': базовые расходы (аренда + еда + счета) + 20% запас",
+        "fields": [
+          {"name": "rent", "label": "Аренда"},
+          {"name": "food", "label": "Еда"},
+          {"name": "bills", "label": "Счета"},
+          {"name": "other", "label": "Другое"}
+        ],
+        "calculation": "sum * 1.2"
+      },
+      "rewards": {
+        "stability_points": 15,
+        "effort": 3,
+        "cards": ["companion_keeper_enough"]
+      }
+    }
+  ],
+  "boss": {
+    "boss_id": "collector_anxiety",
+    "name": "Коллектор Тревоги",
+    "trigger": {
+      "type": "pattern",
+      "condition": "sessions_without_numbers",
+      "threshold": 3
+    },
+    "effects": {
+      "penalty": -4,
+      "anxiety_multiplier": 1.5,
+      "blocks_rational": true
+    },
+    "defeat_conditions": [
+      {"type": "numbers", "count": 3, "specificity": "concrete"},
+      {"type": "card", "card_id": "contract_clear_number"},
+      {"type": "full_inventory", "type": "financial"}
+    ]
+  }
+}
+

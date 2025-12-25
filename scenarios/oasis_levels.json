@@ -1,0 +1,127 @@
+{
+  "district": "oasis",
+  "name": "Оазис",
+  "theme": "health",
+  "philosophy": "Тело как союзник, а не инструмент",
+  "levels": [
+    {
+      "level_id": "oasis_1",
+      "name": "Базовый сигнал",
+      "sessions_required": [1, 2],
+      "binary_tree_id": "oasis_body_check",
+      "task": {
+        "type": "timer",
+        "prompt": "Сканирование тела: закрой глаза. Где чувствуется тяжесть? Где тепло? Просто замечай.",
+        "duration": 30,
+        "guidance": "Дыши спокойно. Проходи вниманием по телу: голова, шея, плечи, грудь, живот, ноги."
+      },
+      "rewards": {
+        "stability_points": 5,
+        "effort": 1,
+        "cards": ["skill_breath_anchor"],
+        "fog_reduction": 20
+      }
+    },
+    {
+      "level_id": "oasis_2",
+      "name": "Границы усталости",
+      "sessions_required": [3, 5],
+      "binary_tree_id": "oasis_rest_vs_pause",
+      "task": {
+        "type": "reflection",
+        "prompt": "Назови ОДИН ранний признак твоей усталости (до того, как совсем плохо)",
+        "examples": ["Зевота", "Раздражение", "Тяжесть в глазах", "Желание сладкого"],
+        "min_words": 5
+      },
+      "rewards": {
+        "stability_points": 7,
+        "effort": 1,
+        "cards": ["relic_energy_barometer"],
+        "unlocks": ["early_warning_system"]
+      }
+    },
+    {
+      "level_id": "oasis_3",
+      "name": "Микроритуалы восстановления",
+      "sessions_required": [6, 10],
+      "binary_tree_id": "oasis_recovery_rituals",
+      "task": {
+        "type": "choice",
+        "prompt": "Выбери ритуал восстановления (5 минут) и сделай его прямо сейчас:",
+        "options": [
+          {"id": "movement", "text": "Движение: 2 мин потянуться + покрутиться", "duration": 120},
+          {"id": "silence", "text": "Тишина: 3 мин без экранов, смотреть в окно", "duration": 180},
+          {"id": "water", "text": "Вода: умыть лицо, выпить стакан медленно", "duration": 180}
+        ],
+        "requires_completion": true
+      },
+      "rewards": {
+        "stability_points": 10,
+        "effort": 2,
+        "cards": ["contract_7_days_pause"]
+      }
+    },
+    {
+      "level_id": "oasis_4",
+      "name": "Инфраструктура здоровья",
+      "sessions_required": [11, 999],
+      "fork": true,
+      "paths": [
+        {
+          "path_id": "sleep_path",
+          "name": "Фокус: Сон",
+          "task": {
+            "type": "time_commitment",
+            "prompt": "Выбери время отбоя (одно и то же ±30 мин). Поставь напоминание за час.",
+            "input_type": "time"
+          },
+          "reward_card": "companion_body_gardener_sleep"
+        },
+        {
+          "path_id": "movement_path",
+          "name": "Фокус: Движение",
+          "task": {
+            "type": "habit_anchor",
+            "prompt": "Выбери: зарядка / прогулка / танец. Привяжи к существующей привычке.",
+            "example": "После утреннего кофе — 10 мин зарядка"
+          },
+          "reward_card": "companion_body_gardener_movement"
+        },
+        {
+          "path_id": "food_path",
+          "name": "Фокус: Питание",
+          "task": {
+            "type": "choice",
+            "prompt": "Реши: завтракаешь всегда ИЛИ никогда. Середины не бывает.",
+            "options": ["Всегда завтракаю", "Никогда не завтракаю"]
+          },
+          "reward_card": "companion_body_gardener_food"
+        }
+      ],
+      "rewards": {
+        "stability_points": 15,
+        "effort": 3
+      }
+    }
+  ],
+  "boss": {
+    "boss_id": "burnout_loop",
+    "name": "Перегрев",
+    "trigger": {
+      "type": "pattern",
+      "condition": "sessions_without_rest",
+      "threshold": 3
+    },
+    "effects": {
+      "penalty": -3,
+      "fog_spread": ["citadel", "garden"],
+      "blocks_positive_replies": true
+    },
+    "defeat_conditions": [
+      {"type": "series", "action": "micro_rituals", "count": 3},
+      {"type": "full_session", "district": "oasis", "focus": "rest"},
+      {"type": "card", "card_id": "skill_water_slowly"}
+    ]
+  }
+}
+
