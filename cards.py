@@ -32,47 +32,55 @@ class CardsManager:
         card = self.get_card(card_id)
         if not card:
             return False
-        
+
         unlock = card.get('unlock_condition', {})
-        unlock_type = unlock.get('type')
-        
+        return self._check_condition(unlock, player_data)
+
+    def _check_condition(self, condition: Dict[str, Any], player_data: Dict[str, Any]) -> bool:
+        """Проверяет конкретное условие (рекурсивно для combined)."""
+        if not condition:
+            return True
+
+        unlock_type = condition.get('type')
+
         if unlock_type == 'action':
             # Проверяем количество действий
             actions = player_data.get('actions_history', {})
-            action_name = unlock.get('action')
-            required_count = unlock.get('count', 1)
+            action_name = condition.get('action')
+            required_count = condition.get('count', 1)
             return actions.get(action_name, 0) >= required_count
-        
-        elif unlock_type == 'sessions_in_district':
+
+        if unlock_type == 'sessions_in_district':
             # Проверяем количество сессий в квартале
-            district = unlock.get('district')
-            required = unlock.get('count')
+            district = condition.get('district')
+            required = condition.get('count')
             sessions = player_data.get('district_sessions', {})
             return sessions.get(district, 0) >= required
-        
-        elif unlock_type == 'complete_level':
+
+        if unlock_type == 'complete_level':
             # Проверяем завершение уровня
-            level_id = unlock.get('level')
+            level_id = condition.get('level')
             completed = player_data.get('completed_levels', [])
             return level_id in completed
-        
-        elif unlock_type == 'stability_points':
+
+        if unlock_type == 'stability_points':
             # Проверяем очки устойчивости
-            required = unlock.get('amount')
+            required = condition.get('amount')
             return player_data.get('stability_points', 0) >= required
-        
-        elif unlock_type == 'combined':
-            # Комбинированные условия
-            conditions = unlock.get('conditions', [])
-            return all(self.check_unlock_conditions(card_id, player_data) for _ in conditions)
-        
-        elif unlock_type == 'contract_completion':
+
+        if unlock_type == 'combined':
+            # Комбинированные условия проверяются последовательно
+            conditions = condition.get('conditions', [])
+            return all(self._check_condition(cond, player_data) for cond in conditions)
+
+        if unlock_type == 'contract_completion':
             # Завершение контракта
-            contract_id = unlock.get('contract')
+            contract_id = condition.get('contract')
             completed = player_data.get('completed_contracts', [])
             return contract_id in completed
-        
-        return False
+
+        # Если тип условия не задан, считаем условие выполненным, чтобы не блокировать карту
+        return True
     
     def calculate_effort_cost(self, card_id: str, upgrade_level: int = 0) -> int:
         """Вычисляет стоимость карты в Effort"""
@@ -220,4 +228,3 @@ class CardsManager:
         
         total = base_effort + microstep_effort + streak_bonus
         return total
-
