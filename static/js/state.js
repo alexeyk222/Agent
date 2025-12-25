@@ -1,0 +1,6 @@
+export const state = {
+  progress: null,
+  session: null,
+  chat: [],
+  offline: false
+};
