@@ -10,6 +10,7 @@ import scenarios
 import cards
 import bosses
 import binary_trees
+import trajectory
 
 app = Flask(__name__)
 CORS(app)
@@ -19,6 +20,9 @@ scenarios_manager = scenarios.ScenariosManager()
 cards_manager = cards.CardsManager()
 bosses_manager = bosses.BossesManager()
 trees_manager = binary_trees.BinaryTreesManager()
+trajectory_engine = trajectory.TrajectoryEngine(
+    scenarios_manager, trees_manager, cards_manager, bosses_manager
+)
 
 # Глобальный объект игрока (в продакшене лучше использовать сессии)
 current_player = None
@@ -92,6 +96,7 @@ def start_session():
     district_key = data.get('district')
     emotion = data.get('emotion')
     intensity = data.get('intensity', 5)
+    path_id = data.get('path_id')
     
     if not district_key or not emotion:
         return jsonify({
@@ -124,6 +129,8 @@ def start_session():
         if rewards.get('unlocks'):
             result['session']['unlocks'] = rewards.get('unlocks')
     
+    trajectory_payload = trajectory_engine.start_level(player, district_key, path_id=path_id)
+    
     # Получаем информацию о квартале для контекста
     district_info = game_engine.City.get_district_info(district_key)
     
@@ -148,7 +155,8 @@ def start_session():
         'session': result['session'],
         'agent_greeting': greeting.get('response', 'Привет! Я Айра, твой наставник. Как дела?'),
         'district_info': district_info,
-        'progress': build_progress_payload(player)
+        'progress': build_progress_payload(player),
+        'trajectory': trajectory_payload
     })
 
 
@@ -352,6 +360,37 @@ def traverse_tree():
         return jsonify({'success': False, 'error': f'Внутренняя ошибка: {str(e)}'}), 500
 
 
+@app.route('/api/trajectory/next', methods=['POST'])
+def trajectory_next():
+    """Следующий шаг по траектории уровня (объединяет ветвления и задания)"""
+    player = get_player()
+    data = request.get_json()
+    answer = data.get('answer')
+
+    if answer is None:
+        return jsonify({'success': False, 'error': 'Не передан ответ на вопрос'}), 400
+
+    result = trajectory_engine.advance_node(player, answer)
+    status_code = 200 if result.get('success') else 400
+    return jsonify(result), status_code
+
+
+@app.route('/api/trajectory/path', methods=['POST'])
+def trajectory_path():
+    """Выбор пути при форках уровней"""
+    player = get_player()
+    data = request.get_json()
+    level_id = data.get('level_id')
+    path_id = data.get('path_id')
+
+    if not level_id or not path_id:
+        return jsonify({'success': False, 'error': 'Нужно передать level_id и path_id'}), 400
+
+    result = trajectory_engine.choose_path(player, level_id, path_id)
+    status_code = 200 if result.get('success') else 400
+    return jsonify(result), status_code
+
+
 @app.route('/api/task/complete', methods=['POST'])
 def complete_task():
     """Завершает задание"""
@@ -389,6 +428,8 @@ def complete_task():
     # Начисляем Effort за выполнение
     effort_earned = 1  # Базовый Effort за микрошаг
     player.data['effort'] = player.data.get('effort', 0) + effort_earned
+
+    trajectory_result = trajectory_engine.handle_task_completion(player, task_data, result or {})
     
     # Сохраняем
     player.storage.save_player(player.data)
@@ -401,7 +442,8 @@ def complete_task():
             'stability_points': 5,
             'effort': effort_earned
         },
-        'progress': build_progress_payload(player)
+        'progress': build_progress_payload(player),
+        'trajectory': trajectory_result
     })
 
 
@@ -529,6 +571,12 @@ def guru_ask():
             'success': False,
             'error': 'Режим ГУРУ ещё не разблокирован'
         }), 403
+
+    if not getattr(config, 'LLM_ENABLED', True):
+        return jsonify({
+            'success': False,
+            'error': 'LLM сейчас отключён'
+        }), 503
     
     data = request.get_json()
     question = data.get('question', '')
