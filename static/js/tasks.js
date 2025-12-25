@@ -455,7 +455,7 @@ class TaskManager {
         
         if (rewards.effort) {
             const effortEl = document.createElement('div');
-            pointsEl.className = 'reward-item';
+            effortEl.className = 'reward-item';
             effortEl.textContent = `+${rewards.effort} Effort`;
             successEl.appendChild(effortEl);
         }
@@ -468,4 +468,3 @@ class TaskManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.taskManager = new TaskManager();
 });
-
